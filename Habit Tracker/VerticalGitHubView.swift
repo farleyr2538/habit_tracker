@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct GitHubView: View {
+struct VerticalGitHubView: View {
     
     @EnvironmentObject var viewModel : ViewModel
     
@@ -78,6 +78,6 @@ struct GitHubView: View {
 }
 
 #Preview {
-    GitHubView()
+    VerticalGitHubView()
         .environmentObject(ViewModel())
 }

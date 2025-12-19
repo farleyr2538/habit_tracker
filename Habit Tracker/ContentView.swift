@@ -54,13 +54,6 @@ struct ContentView: View {
         }
         .sheet(isPresented: $habitEditorShowing) {
             CreateHabitSheet(habitEditorShowing: $habitEditorShowing)
-                //.presentationDetents([.height(575)])
-                // .presentationDragIndicator(.visible)
-            // NavigationStack {
-                //VStack {
-                    
-                //}
-            // }
         }
     }
 }

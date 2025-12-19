@@ -141,5 +141,21 @@ class ViewModel : ObservableObject {
         return newDate
     }
     
+    func datesInLastYear() -> [Date] {
+        var returnArray : [Date] = []
+        let today = Date()
+        let oneYearAgo = calendar.date(byAdding: .year, value: -1, to: today)
+        
+        if var index = oneYearAgo {
+            while index <= today {
+                returnArray.append(index)
+                index = calendar.date(byAdding: .day, value: 1, to: index)!
+            }
+        }
+        
+        return returnArray
+        
+    }
+    
     
 }
