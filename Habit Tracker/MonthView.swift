@@ -13,7 +13,7 @@ struct MonthView: View {
     @EnvironmentObject var viewModel : ViewModel
     // @Query var habits : [Habit]
     
-    @State var selectedDate : Date // a date to show the month around
+    @State var selectedDate : Date = Date() // a date to show the month around
     @Bindable var habit : Habit
     
     var body: some View {
@@ -64,11 +64,13 @@ struct MonthView: View {
                 }
                 .frame(minWidth: 300)
                 .padding(.horizontal)
+                
                 Image(systemName: "chevron.right")
                     .onTapGesture {
                         // incredment month by 1
                         selectedDate = viewModel.adjust(givenDate: selectedDate, months: 1)
                     }
+                
             }
             .padding(.bottom)
             /*
@@ -76,7 +78,9 @@ struct MonthView: View {
                 Text(formatter.string(from: date))
             }
             */
+            Spacer()
         }
+        .padding(.vertical, 20)
     }
 }
 

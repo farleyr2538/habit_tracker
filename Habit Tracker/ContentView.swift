@@ -12,6 +12,8 @@ struct ContentView: View {
     
     @EnvironmentObject var viewModel : ViewModel
     
+    @State private var coordinator = NavigationCoordinator()
+    
     @State var habitEditorShowing : Bool = false
     @State var newHabitError : Bool = false
     
@@ -20,18 +22,24 @@ struct ContentView: View {
     @Environment(\.modelContext) private var context
     
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $coordinator.path) {
             Group {
                 if !habits.isEmpty {
                     HabitListView()
+                        .navigationDestination(for: Habit.self) { habit in
+                            HabitView(habit: habit)
+                        }
                 } else {
                     VStack {
                         Spacer()
+                        
                         Text("No habits yet")
                             .foregroundStyle(.secondary)
                             .font(.title3)
                             .padding()
+                        
                         Spacer()
+                        
                         NewHabitButton(habitEditorShowing: $habitEditorShowing)
                             .padding(.bottom)
                     }
@@ -43,7 +51,7 @@ struct ContentView: View {
                 if !habits.isEmpty {
                     ToolbarItem {
                         Button {
-                            habitEditorShowing.toggle()
+                            habitEditorShowing = true
                         } label: {
                             Image(systemName: "plus")
                         }
@@ -55,6 +63,7 @@ struct ContentView: View {
         .sheet(isPresented: $habitEditorShowing) {
             CreateHabitSheet(habitEditorShowing: $habitEditorShowing)
         }
+        .environment(coordinator)
     }
 }
 

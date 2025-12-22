@@ -10,10 +10,12 @@ import SwiftData
 
 struct HabitListView: View {
     
+    @Environment(NavigationCoordinator.self) private var coordinator
+    
     // SwiftData
     @Query private var habits : [Habit]
     @Environment(\.modelContext) private var context
-    
+        
     func deleteHabit(at offsets: IndexSet) {
         for index in offsets {
             let habit = habits[index]
@@ -27,14 +29,37 @@ struct HabitListView: View {
     }
     
     var body: some View {
-        List {
+        ScrollView {
             ForEach(habits) { habit in
-                NavigationLink(habit.name) {
-                    MonthView(selectedDate: Date(), habit: habit)
-                        .navigationTitle(habit.name)
+                
+                VStack {
+                    HStack {
+                        Text(habit.name)
+                            .font(.title3)
+                        Spacer()
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 15.0)
+                                .foregroundStyle(.gray.opacity(0.2))
+                            Image(systemName: "checkmark")
+                        }
+                        .frame(width: 50, height: 50)
+                        .onTapGesture {
+                            habit.dates.append(Date())
+                        }
+                        
+                    }
+                    .padding(.top, 20)
+                    .padding(.horizontal, 20)
+                    
+                    HorizontalGitHubView(habit: habit, width: .narrow)
                 }
+                .onTapGesture {
+                    coordinator.path.append(habit)
+                }
+                
             }
             .onDelete(perform: deleteHabit)
+            
         }
     }
 }
@@ -48,4 +73,6 @@ struct HabitListView: View {
                 }
             }
         }
+        .environmentObject(ViewModel())
+        .environment(NavigationCoordinator())
 }

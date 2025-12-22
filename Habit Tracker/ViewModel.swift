@@ -29,6 +29,8 @@ extension Habit {
     
     static var sampleData: [Habit] {
         
+        // dates should be 12, 14, 15 and 16 of December 2025
+        
         let days = [12, 14, 15, 16]
         var components : [DateComponents] = []
         
@@ -140,11 +142,12 @@ class ViewModel : ObservableObject {
         }
         return newDate
     }
+
     
-    func datesInLastYear() -> [Date] {
+    func datesInLast(dateComponent: Calendar.Component, number: Int) -> [Date] {
         var returnArray : [Date] = []
-        let today = Date()
-        let oneYearAgo = calendar.date(byAdding: .year, value: -1, to: today)
+        let today = calendar.startOfDay(for: Date())
+        let oneYearAgo = calendar.date(byAdding: dateComponent, value: (0 - number), to: today)
         
         if var index = oneYearAgo {
             while index <= today {
@@ -156,6 +159,4 @@ class ViewModel : ObservableObject {
         return returnArray
         
     }
-    
-    
 }

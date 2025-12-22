@@ -16,93 +16,93 @@ struct HorizontalGitHubView: View {
     @State var numberOfDays : Int = 365
     @State var numberOfRows = 7
     
+    enum Width {
+        case wide
+        case narrow
+    }
+    var width : Width
+    
+    @State var scrollPosition : Int?
+    
     var body: some View {
         
         let gridRows : [GridItem] = Array(repeating: GridItem(.fixed(1), spacing: 10), count: numberOfRows) // number of rows permitted
         
-        // get weekday, and adjust it to 1 = Monday, 2 = Tuesday, etc.
-        let currentDay = {
-            if calendar.component(.weekday, from: Date()) == 1 {
-                return 7
+        let datesInLastYear = {
+            if width == .wide {
+                return viewModel.datesInLast(dateComponent: .year, number: 1)
             } else {
-                return calendar.component(.weekday, from: Date()) - 1
+                return viewModel.datesInLast(dateComponent: .month, number: 6)
             }
         }()
-        
-        let datesInLastYear = viewModel.datesInLastYear()
+        let remainder = datesInLastYear.count % 7
+        let buffer = 7 - remainder
         
         let selectedWeekdays = ["Mon", "", "Weds", "", "Fri", "", "Sun"]
         
-        VStack {
+        ScrollView([.horizontal]) {
             
-            Spacer()
-            
-            ScrollView([.horizontal]) {
+            LazyHGrid(rows: gridRows) {
                 
-                LazyHGrid(rows: gridRows) {
+                ForEach(selectedWeekdays, id: \.self) { day in
+                    Text(day)
+                        .font(.system(size: 8.0))
+                }
+                
+                ForEach(0..<buffer, id: \.self) { x in
+                    ZStack {
+                        Rectangle()
+                        /*
+                         Text(String(index + 1))
+                         .foregroundStyle(.white)
+                         .font(.custom("helvetica", size: 5.0))
+                         */
+                    }
+                    .frame(width: 10, height: 10)
+                    .padding(.vertical, -3)
+                    .padding(.horizontal, -3)
+                    .hidden()
+                }
+                
+                ForEach(datesInLastYear, id: \.self) { date in
                     
-                    ForEach(selectedWeekdays, id: \.self) { day in
-                        Text(day)
-                            .font(.system(size: 8.0))
-                    }
+                    let isComplete = habit.dates.contains(date)
                     
-                    ForEach(datesInLastYear, id: \.self) { date in
+                    ZStack {
+                        Rectangle()
+                            .foregroundStyle(isComplete ? .green : .gray.opacity(2.0))
                         
-                        let isComplete = habit.dates.contains(date)
+                        /*
+                         Text(date.description)
+                         .foregroundStyle(.white)
+                         .font(.custom("helvetica", size: 2.0))
+                         */
                         
-                        ZStack {
-                            Rectangle()
-                                .foregroundStyle(isComplete ? .green : .gray.opacity(2.0))
-                            /*
-                             Text(String(index + 1))
-                             .foregroundStyle(.white)
-                             .font(.custom("helvetica", size: 5.0))
-                             */
-                        }
-                        .frame(width: 10, height: 10)
-                        .padding(.vertical, -3)
-                        .padding(.horizontal, -3)
                     }
-                }
-                .padding(.horizontal)
-                //.frame(height: 200)
-            }
-            .frame(height: 100)
-            .scrollIndicators(.hidden)
-            .defaultScrollAnchor(.trailing)
-            
-            /*
-            HStack {
-                Button("Year") {
-                    numberOfRows = 7
-                    numberOfDays = 365
-                }
-                Button("Month") {
-                    if let daysInMonthRange = calendar.range(of: .day, in: .month, for: Date()) {
-                        numberOfRows = 7
-                        numberOfDays = daysInMonthRange.count
-                    }
-                }
-                Button("Week") {
-                    numberOfRows = 7
-                    numberOfDays = 7
-                }
-                Button("Day") {
-                    numberOfRows = 1
-                    numberOfDays = 1
+                    .frame(width: 10, height: 10)
+                    .padding(.vertical, -3)
+                    .padding(.horizontal, -3)
                 }
             }
-            .buttonStyle(.bordered)
-             */
-            
-            Spacer()
+            .frame(height: 90)
+            .padding(.horizontal)
+            .scrollTargetLayout()
+            //.frame(height: 200)
         }
+        .frame(height: 100)
+        .scrollIndicators(.hidden)
+        .defaultScrollAnchor(.trailing)
+        .scrollPosition(id: $scrollPosition)
+        .onAppear {
+            scrollPosition = datesInLastYear.count
+        }
+        
     }
 }
 
 #Preview {
     let previewHabit : Habit = Habit.sampleData.first!
     
-    HorizontalGitHubView(habit: previewHabit)
+    HorizontalGitHubView(habit: previewHabit, width: .wide)
         .environmentObject(ViewModel())
 }
