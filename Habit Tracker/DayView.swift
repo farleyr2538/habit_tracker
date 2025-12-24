@@ -17,6 +17,8 @@ struct DayView: View {
     
     var date : Date
     
+    let impact = UIImpactFeedbackGenerator(style: .medium)
+    
     var body: some View {
         
         let dayNumber = calendar.component(.day, from: date)
@@ -29,6 +31,7 @@ struct DayView: View {
                 .scaleEffect(pressEffect ? 0.6 : 1)
                 .foregroundStyle(completed ? .green : .black)
                 .onTapGesture {
+                    impact.impactOccurred()
                     withAnimation(.bouncy) {
                         pressEffect.toggle()
                         if !completed {

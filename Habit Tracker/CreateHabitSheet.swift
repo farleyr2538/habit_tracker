@@ -39,6 +39,14 @@ struct CreateHabitSheet: View {
                             .focused($textFieldFocused)
                             .multilineTextAlignment(.trailing)
                             .textFieldStyle(.roundedBorder)
+                            .toolbar {
+                                ToolbarItemGroup(placement: .keyboard) {
+                                    Spacer()
+                                    Button("Done") {
+                                        textFieldFocused = false
+                                    }
+                                }
+                            }
                     }
                     .padding(.top, 20)
                     .frame(width: 300)
@@ -104,7 +112,7 @@ struct CreateHabitSheet: View {
                         habitEditorShowing = false
                     } label: {
                         Image(systemName: "xmark.circle.fill")
-                            .foregroundStyle(.red)
+                            //.foregroundStyle(.red)
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {

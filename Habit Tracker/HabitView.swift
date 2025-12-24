@@ -23,9 +23,9 @@ struct HabitView: View {
                 Spacer()
             }
             
-            HorizontalGitHubView(habit: habit, width: .narrow)
+            HorizontalGitHubView(habit: habit, width: .wide)
             
-            MonthView(habit: habit)
+            MonthView(selectedDate: Date(), habit: habit)
             
             Spacer()
             

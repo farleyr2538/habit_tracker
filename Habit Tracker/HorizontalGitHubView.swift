@@ -13,32 +13,31 @@ struct HorizontalGitHubView: View {
     
     @State var habit : Habit
     
-    @State var numberOfDays : Int = 365
+    @State var numberOfDays : Int = 52 * 7
     @State var numberOfRows = 7
     
-    enum Width {
-        case wide
-        case narrow
-    }
     var width : Width
     
     @State var scrollPosition : Int?
     
     var body: some View {
         
+        let selectedWeekdays = ["Mon", "", "Weds", "", "Fri", "", "Sun"]
+        
         let gridRows : [GridItem] = Array(repeating: GridItem(.fixed(1), spacing: 10), count: numberOfRows) // number of rows permitted
         
-        let datesInLastYear = {
-            if width == .wide {
-                return viewModel.datesInLast(dateComponent: .year, number: 1)
-            } else {
-                return viewModel.datesInLast(dateComponent: .month, number: 6)
-            }
-        }()
-        let remainder = datesInLastYear.count % 7
-        let buffer = 7 - remainder
+        let endDate = viewModel.getEndOfCurrentWeek()
+        let startDate = calendar.date(byAdding: .day, value: (1 - numberOfDays), to: calendar.startOfDay(for: endDate))!
         
-        let selectedWeekdays = ["Mon", "", "Weds", "", "Fri", "", "Sun"]
+        /*
+        Text("numberOfDays: " + String(numberOfDays))
+        Text("end of week: " + endDate.description)
+        Text("startDate: " + startDate.description)
+        
+        ForEach(habit.dates, id: \.self) { date in
+            Text(date.description)
+        }
+         */
         
         ScrollView([.horizontal]) {
             
@@ -49,28 +48,20 @@ struct HorizontalGitHubView: View {
                         .font(.system(size: 8.0))
                 }
                 
-                ForEach(0..<buffer, id: \.self) { x in
-                    ZStack {
-                        Rectangle()
-                        /*
-                         Text(String(index + 1))
-                         .foregroundStyle(.white)
-                         .font(.custom("helvetica", size: 5.0))
-                         */
-                    }
-                    .frame(width: 10, height: 10)
-                    .padding(.vertical, -3)
-                    .padding(.horizontal, -3)
-                    .hidden()
-                }
-                
-                ForEach(datesInLastYear, id: \.self) { date in
+                ForEach(0..<numberOfDays, id: \.self) { dayNumber in
                     
+                    // for each day, create date, assess whether its in habit.dates
+                    // or, create (weeks * 7) dates, and iterate through them, checking if each is present in habit.dates
+                    
+                    // create date
+                    let date = calendar.date(byAdding: .day, value: dayNumber, to: startDate)!
+                    
+                    // check whether habit.dates contains date
                     let isComplete = habit.dates.contains(date)
                     
                     ZStack {
-                        Rectangle()
-                            .foregroundStyle(isComplete ? .green : .gray.opacity(2.0))
+                        RoundedRectangle(cornerRadius: 2.0)
+                            .foregroundStyle(isComplete ? .green : .gray.opacity(0.15))
                         
                         /*
                          Text(date.description)
@@ -80,7 +71,7 @@ struct HorizontalGitHubView: View {
                         
                     }
                     .frame(width: 10, height: 10)
-                    .padding(.vertical, -3)
+                    //.padding(.vertical, -2)
                     .padding(.horizontal, -3)
                 }
             }
@@ -92,9 +83,13 @@ struct HorizontalGitHubView: View {
         .frame(height: 100)
         .scrollIndicators(.hidden)
         .defaultScrollAnchor(.trailing)
+        .scrollBounceBehavior(.basedOnSize)
         .scrollPosition(id: $scrollPosition)
         .onAppear {
-            scrollPosition = datesInLastYear.count
+            scrollPosition = numberOfDays
+            if width == .narrow {
+                numberOfDays = (52 * 7 / 2) + 14
+            }
         }
         
     }
@@ -103,6 +98,6 @@ struct HorizontalGitHubView: View {
 #Preview {
     let previewHabit : Habit = Habit.sampleData.first!
     
-    HorizontalGitHubView(habit: previewHabit, width: .wide)
+    HorizontalGitHubView(habit: previewHabit, width: .narrow)
         .environmentObject(ViewModel())
 }

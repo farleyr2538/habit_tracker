@@ -13,7 +13,7 @@ struct MonthView: View {
     @EnvironmentObject var viewModel : ViewModel
     // @Query var habits : [Habit]
     
-    @State var selectedDate : Date = Date() // a date to show the month around
+    @State var selectedDate : Date // a date to show the month around
     @Bindable var habit : Habit
     
     var body: some View {
@@ -47,15 +47,14 @@ struct MonthView: View {
                     }
                     ForEach(0..<(totalDays), id: \.self) { index in
                         if (index >= firstDay) {
+                            
+                            // create date
                             let dayNumber = index - firstDay + 1
                             let components = DateComponents.init(year: year, month: month, day: dayNumber)
-                            
-                            if let updatedDate = calendar.date(from: components) {
+                            if let date = calendar.date(from: components) {
                                 // if date is in dates...
-                                let isInDates = habit.dates.contains(where: {
-                                    calendar.isDate($0, equalTo: updatedDate, toGranularity: .day)
-                                })
-                                DayView(completed: isInDates ? true : false, dates: $habit.dates, date: updatedDate)
+                                let isInDates = habit.dates.contains(date)
+                                DayView(completed: isInDates ? true : false, dates: $habit.dates, date: date)
                             }
                         } else {
                             Spacer()

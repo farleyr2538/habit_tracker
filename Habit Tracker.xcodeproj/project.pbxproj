@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		D48425692DD4BB90009E257E /* Practice.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Practice.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D48425692DD4BB90009E257E /* Habit Tracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Habit Tracker.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -40,7 +40,7 @@
 		D484256A2DD4BB90009E257E /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D48425692DD4BB90009E257E /* Practice.app */,
+				D48425692DD4BB90009E257E /* Habit Tracker.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -48,9 +48,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		D48425682DD4BB90009E257E /* Practice */ = {
+		D48425682DD4BB90009E257E /* Habit Tracker */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D48425742DD4BB92009E257E /* Build configuration list for PBXNativeTarget "Practice" */;
+			buildConfigurationList = D48425742DD4BB92009E257E /* Build configuration list for PBXNativeTarget "Habit Tracker" */;
 			buildPhases = (
 				D48425652DD4BB90009E257E /* Sources */,
 				D48425662DD4BB90009E257E /* Frameworks */,
@@ -63,11 +63,11 @@
 			fileSystemSynchronizedGroups = (
 				D484256B2DD4BB90009E257E /* Habit Tracker */,
 			);
-			name = Practice;
+			name = "Habit Tracker";
 			packageProductDependencies = (
 			);
 			productName = Practice;
-			productReference = D48425692DD4BB90009E257E /* Practice.app */;
+			productReference = D48425692DD4BB90009E257E /* Habit Tracker.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -99,7 +99,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				D48425682DD4BB90009E257E /* Practice */,
+				D48425682DD4BB90009E257E /* Habit Tracker */,
 			);
 		};
 /* End PBXProject section */
@@ -258,6 +258,7 @@
 				DEVELOPMENT_TEAM = W6PCDQ36JU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -286,6 +287,7 @@
 				DEVELOPMENT_TEAM = W6PCDQ36JU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -316,7 +318,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D48425742DD4BB92009E257E /* Build configuration list for PBXNativeTarget "Practice" */ = {
+		D48425742DD4BB92009E257E /* Build configuration list for PBXNativeTarget "Habit Tracker" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D48425752DD4BB92009E257E /* Debug */,

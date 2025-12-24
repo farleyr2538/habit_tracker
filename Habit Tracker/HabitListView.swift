@@ -29,29 +29,42 @@ struct HabitListView: View {
     }
     
     var body: some View {
+        
+        let today = calendar.startOfDay(for: Date())
+        
         ScrollView {
             ForEach(habits) { habit in
-                
+                                
                 VStack {
                     HStack {
                         Text(habit.name)
                             .font(.title3)
+                        
                         Spacer()
+                        
                         ZStack {
                             RoundedRectangle(cornerRadius: 15.0)
                                 .foregroundStyle(.gray.opacity(0.2))
                             Image(systemName: "checkmark")
                         }
-                        .frame(width: 50, height: 50)
                         .onTapGesture {
-                            habit.dates.append(Date())
+                            
+                            let impact = UIImpactFeedbackGenerator(style: .medium)
+                            impact.impactOccurred()
+                            
+                            if habit.dates.contains(today) {
+                                habit.dates.removeAll(where: { $0 == today })
+                            } else {
+                                habit.dates.append(today)
+                            }
                         }
-                        
+                        .frame(width: 50, height: 50)
+                         
                     }
                     .padding(.top, 20)
                     .padding(.horizontal, 20)
                     
-                    HorizontalGitHubView(habit: habit, width: .narrow)
+                    StaticHorizontalGitHubView(habit: habit)
                 }
                 .onTapGesture {
                     coordinator.path.append(habit)

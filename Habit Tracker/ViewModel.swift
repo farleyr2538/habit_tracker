@@ -12,58 +12,10 @@ import SwiftUI
 var calendar = Calendar.current
 var formatter = DateFormatter()
 
-@Model
-class Habit : Hashable {
-    
-    var name : String
-    var dates : [Date]
-    // var colour : Color?
-    
-    init(name: String, dates: [Date]) {
-        self.name = name
-        self.dates = dates
-    }
-}
-
-extension Habit {
-    
-    static var sampleData: [Habit] {
-        
-        // dates should be 12, 14, 15 and 16 of December 2025
-        
-        let days = [12, 14, 15, 16]
-        var components : [DateComponents] = []
-        
-        for day in days {
-            components.append(DateComponents(year: 2025, month: 12, day: day))
-        }
-        
-        var dates : [Date] = []
-        for component in components {
-            dates.append(calendar.date(from: component)!)
-        }
-        
-        return [
-            Habit(name: "Running", dates: dates),
-            Habit(name: "Cooking", dates: dates)
-        ]
-    }
-}
-
-struct UserConfig {
-    var isFirstTime : Bool = true
-    var setupDate : Date = Date()
-    var daysSinceSetup : Int = 0
-    var daysLastMonth : Int = 0
-    var monthBeforeSetup : Date = Date()
-}
-
 class ViewModel : ObservableObject {
     
     @Published var habits : [Habit] = []
     @Published var userConfig = UserConfig()
-    
-    
     
     init() { // record the date the user first sets up the app
                 
@@ -157,6 +109,18 @@ class ViewModel : ObservableObject {
         }
         
         return returnArray
+        
+    }
+    
+    func getEndOfCurrentWeek() -> Date {
+        let today = Date()
+        if let weekInterval = calendar.dateInterval(of: .weekOfYear, for: today) {
+            let end = weekInterval.end
+            let weekEnd = calendar.date(byAdding: .day, value: -1, to: end)!
+            return weekEnd
+        } else {
+            return Date()
+        }
         
     }
 }
