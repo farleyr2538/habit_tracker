@@ -39,59 +39,64 @@ struct HorizontalGitHubView: View {
         }
          */
         
-        ScrollView([.horizontal]) {
-            
-            LazyHGrid(rows: gridRows) {
-                
+        HStack {
+
+            VStack {
                 ForEach(selectedWeekdays, id: \.self) { day in
                     Text(day)
                         .font(.system(size: 8.0))
                 }
+            }
+            
+            ScrollView([.horizontal]) {
                 
-                ForEach(0..<numberOfDays, id: \.self) { dayNumber in
+                LazyHGrid(rows: gridRows) {
                     
-                    // for each day, create date, assess whether its in habit.dates
-                    // or, create (weeks * 7) dates, and iterate through them, checking if each is present in habit.dates
-                    
-                    // create date
-                    let date = calendar.date(byAdding: .day, value: dayNumber, to: startDate)!
-                    
-                    // check whether habit.dates contains date
-                    let isComplete = habit.dates.contains(date)
-                    
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 2.0)
-                            .foregroundStyle(isComplete ? .green : .gray.opacity(0.15))
+                    ForEach(0..<numberOfDays, id: \.self) { dayNumber in
                         
-                        /*
-                         Text(date.description)
-                         .foregroundStyle(.white)
-                         .font(.custom("helvetica", size: 2.0))
-                         */
+                        // for each day, create date, assess whether its in habit.dates
+                        // or, create (weeks * 7) dates, and iterate through them, checking if each is present in habit.dates
                         
+                        // create date
+                        let date = calendar.date(byAdding: .day, value: dayNumber, to: startDate)!
+                        
+                        // check whether habit.dates contains date
+                        let isComplete = habit.dates.contains(date)
+                        
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 2.0)
+                                .foregroundStyle(isComplete ? .green : .gray.opacity(0.15))
+                            
+                            /*
+                             Text(date.description)
+                             .foregroundStyle(.white)
+                             .font(.custom("helvetica", size: 2.0))
+                             */
+                            
+                        }
+                        .frame(width: 10, height: 10)
+                        //.padding(.vertical, -2)
+                        .padding(.horizontal, -3)
                     }
-                    .frame(width: 10, height: 10)
-                    //.padding(.vertical, -2)
-                    .padding(.horizontal, -3)
+                    
+                }
+                .frame(height: 90)
+                .padding(.horizontal)
+                .scrollTargetLayout()
+                //.frame(height: 200)
+            }
+            .frame(height: 100)
+            .scrollIndicators(.hidden)
+            .defaultScrollAnchor(.trailing)
+            .scrollBounceBehavior(.basedOnSize)
+            .scrollPosition(id: $scrollPosition)
+            .onAppear {
+                scrollPosition = numberOfDays
+                if width == .narrow {
+                    numberOfDays = (52 * 7 / 2) + 14
                 }
             }
-            .frame(height: 90)
-            .padding(.horizontal)
-            .scrollTargetLayout()
-            //.frame(height: 200)
         }
-        .frame(height: 100)
-        .scrollIndicators(.hidden)
-        .defaultScrollAnchor(.trailing)
-        .scrollBounceBehavior(.basedOnSize)
-        .scrollPosition(id: $scrollPosition)
-        .onAppear {
-            scrollPosition = numberOfDays
-            if width == .narrow {
-                numberOfDays = (52 * 7 / 2) + 14
-            }
-        }
-        
     }
 }
 
