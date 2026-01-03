@@ -28,51 +28,59 @@ struct HabitListView: View {
         }
     }
     
+    var columns = [
+        GridItem(.adaptive(minimum: 400, maximum: 400), spacing: 10)
+    ]
+    
     var body: some View {
         
         let today = calendar.startOfDay(for: Date())
         
         ScrollView {
-            ForEach(habits) { habit in
-                                
-                VStack {
-                    HStack {
-                        Text(habit.name)
-                            .font(.title3)
-                        
-                        Spacer()
-                        
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 15.0)
-                                .foregroundStyle(.gray.opacity(0.2))
-                            Image(systemName: "checkmark")
-                        }
-                        .onTapGesture {
-                            
-                            let impact = UIImpactFeedbackGenerator(style: .medium)
-                            impact.impactOccurred()
-                            
-                            if habit.dates.contains(today) {
-                                habit.dates.removeAll(where: { $0 == today })
-                            } else {
-                                habit.dates.append(today)
-                            }
-                        }
-                        .frame(width: 50, height: 50)
-                         
-                    }
-                    .padding(.top, 20)
-                    .padding(.horizontal, 20)
-                    
-                    StaticHorizontalGitHubView(habit: habit)
-                }
-                .onTapGesture {
-                    coordinator.path.append(habit)
-                }
-                
-            }
-            .onDelete(perform: deleteHabit)
             
+            LazyVGrid(columns: columns) {
+                
+                ForEach(habits) { habit in
+                    
+                    VStack {
+                        HStack {
+                            Text(habit.name)
+                                .font(.title3)
+                            
+                            Spacer()
+                            
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 15.0)
+                                    .foregroundStyle(.gray.opacity(0.2))
+                                Image(systemName: "checkmark")
+                            }
+                            .onTapGesture {
+                                
+                                let impact = UIImpactFeedbackGenerator(style: .medium)
+                                impact.impactOccurred()
+                                
+                                if habit.dates.contains(today) {
+                                    habit.dates.removeAll(where: { $0 == today })
+                                } else {
+                                    habit.dates.append(today)
+                                }
+                            }
+                            .frame(width: 50, height: 50)
+                            
+                        }
+                        .padding(.top, 20)
+                        .padding(.horizontal, 20)
+                        
+                        StaticHorizontalGitHubView(habit: habit)
+                    }
+                    .frame(width: 400)
+                    .onTapGesture {
+                        coordinator.path.append(habit)
+                    }
+                    
+                }
+                .onDelete(perform: deleteHabit)
+            }
         }
     }
 }

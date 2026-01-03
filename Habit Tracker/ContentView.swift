@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  Practice
+//  Habit Tracker
 //
 //  Created by Robert Farley on 14/05/2025.
 //
@@ -30,23 +30,29 @@ struct ContentView: View {
                             HabitView(habit: habit)
                         }
                 } else {
-                    VStack {
-                        Spacer()
-                        
-                        Text("No habits yet")
-                            .foregroundStyle(.secondary)
-                            .font(.title3)
-                            .padding()
-                        
-                        Spacer()
-                        
-                        NewHabitButton(habitEditorShowing: $habitEditorShowing)
-                            .padding(.bottom)
-                    }
                     
+                    ZStack {
+                                            
+                        Color.accentColor
+                            .ignoresSafeArea()
+                    
+                        VStack {
+                            
+                            Spacer()
+                            
+                            Text("No habits yet")
+                                .foregroundStyle(.secondary)
+                                .font(.title3)
+                                       
+                            NewHabitButton(habitEditorShowing: $habitEditorShowing)
+                                .padding(.top, 250)
+                                .padding(.bottom, 100)
+                        }
+                    }
                 }
             }
-            .navigationTitle("Habits")
+            //.navigationTitle("Habits")
+            /*
             .toolbar {
                 if !habits.isEmpty {
                     ToolbarItem {
@@ -57,8 +63,8 @@ struct ContentView: View {
                         }
                     }
                 }
-                
             }
+            */
         }
         .sheet(isPresented: $habitEditorShowing) {
             CreateHabitSheet(habitEditorShowing: $habitEditorShowing)
@@ -70,6 +76,7 @@ struct ContentView: View {
 #Preview {
     ContentView()
         .environmentObject(ViewModel())
+    /*
         .modelContainer(for: Habit.self, inMemory: true) { result in
             if case .success(let container) = result {
                 Habit.sampleData.forEach { habit in
@@ -77,5 +84,6 @@ struct ContentView: View {
                 }
             }
         }
+     */
 }
 
