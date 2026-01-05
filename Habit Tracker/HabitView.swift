@@ -13,7 +13,7 @@ struct HabitView: View {
     
     var body: some View {
         
-        VStack {
+        VStack(spacing: 20) {
             
             HStack {
                 
@@ -27,10 +27,11 @@ struct HabitView: View {
             
             MonthView(selectedDate: Date(), habit: habit)
             
-            Spacer()
+            // Spacer()
             
         }
         .padding()
+        .background(Color.background)
         
     }
 }

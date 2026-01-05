@@ -15,6 +15,8 @@ struct HabitListView: View {
     // SwiftData
     @Query private var habits : [Habit]
     @Environment(\.modelContext) private var context
+    
+    @State var newHabitSheetShowing : Bool = false
         
     func deleteHabit(at offsets: IndexSet) {
         for index in offsets {
@@ -63,9 +65,22 @@ struct HabitListView: View {
             }
             
         }
+        .safeAreaInset(edge: .bottom, alignment: .trailing) {
+            Button {
+                newHabitSheetShowing = true
+            } label: {
+                Text("Add new habit")
+                    .padding(10)
+            }
+            .padding(.trailing, 30)
+            .padding(.bottom, 30)
+            .buttonStyle(.borderedProminent)
+        }
         .padding(.top, 10)
         .background(Color.background, ignoresSafeAreaEdges: .all)
-        //}
+        .sheet(isPresented: $newHabitSheetShowing) {
+            CreateHabitSheet(habitEditorShowing: $newHabitSheetShowing)
+        }
     }
 }
 

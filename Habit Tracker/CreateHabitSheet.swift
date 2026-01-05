@@ -16,8 +16,10 @@ struct CreateHabitSheet: View {
     @State var newHabitError : Bool = false
     @FocusState private var textFieldFocused : Bool
     
-    // @Environment(\.dismiss) var dismiss
+    let colors : [Color] = [.blue, .red, .orange, .yellow]
     
+    @State var color : Color = .accentColor
+        
     @Environment(\.modelContext) private var context
     
     var body: some View {
@@ -26,7 +28,7 @@ struct CreateHabitSheet: View {
             
             ScrollView {
                 
-                VStack(spacing: 15) {
+                VStack(alignment: .leading, spacing: 15) {
                     
                     HStack(alignment: .firstTextBaseline) {
                         
@@ -53,12 +55,12 @@ struct CreateHabitSheet: View {
                             }
                     }
                     .padding(.top, 20)
-                    .frame(width: 300)
+                    // .frame(width: 300)
                     
-                    HStack {
-                        // Image(systemName: "info.circle")
-                        Text("Select any recent dates you have completed this habit")
-                    }
+                    // color picker
+                    ColorPicker("Colour", selection: $color)
+                    
+                    Text("Select any recent dates you have completed this habit")
                     .foregroundStyle(.gray)
                     
                     MonthView(selectedDate: Date(), habit: newHabit)
@@ -69,11 +71,6 @@ struct CreateHabitSheet: View {
                 .padding(.horizontal, 50)
             }
             .scrollContentBackground(.hidden)
-            .onAppear {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    textFieldFocused = true
-                }
-            }
             .alert("Please add habit name", isPresented: $newHabitError) {
                 Button("OK") {
                     newHabitError.toggle()
@@ -85,7 +82,6 @@ struct CreateHabitSheet: View {
                         habitEditorShowing = false
                     } label: {
                         Image(systemName: "xmark.circle.fill")
-                        //.foregroundStyle(.red)
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
@@ -95,6 +91,10 @@ struct CreateHabitSheet: View {
                         } else {
                             // save habit
                             let habitToInsert = Habit(name: newHabit.name, dates: newHabit.dates)
+                            
+                            // convert color to color hash/hex and assign it to habit
+                            
+                            // add to context & save
                             context.insert(habitToInsert)
                             do {
                                 try context.save()
@@ -119,6 +119,9 @@ struct CreateHabitSheet: View {
             .navigationTitle("Create Habit")
             .navigationBarTitleDisplayMode(.inline)
             //.toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+        }
+        .onAppear {
+            textFieldFocused = true
         }
     }
 }

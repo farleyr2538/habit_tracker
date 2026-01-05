@@ -18,7 +18,8 @@ struct StaticHorizontalGitHubView: View {
     
     var body: some View {
         
-        let selectedWeekdays = ["Mon", "", "Weds", "", "Fri", "", "Sun"]
+        let allWeekdays = ["Mon", "Tues", "Weds", "Thurs", "Fri", "Sat", "Sun"]
+        let selectedWeekdays = ["Mon", "Weds", "Fri", "Sun"]
         
         let gridRows : [GridItem] = Array(repeating: GridItem(.fixed(1), spacing: 10), count: numberOfRows) // number of rows permitted
         
@@ -27,9 +28,13 @@ struct StaticHorizontalGitHubView: View {
         
         LazyHGrid(rows: gridRows) {
             
-            ForEach(selectedWeekdays, id: \.self) { day in
-                Text(day)
-                    .font(.system(size: 8.0))
+            ForEach(allWeekdays, id: \.self) { day in
+                if selectedWeekdays.contains(day) {
+                    Text(day)
+                        .font(.system(size: 8.0))
+                } else {
+                    Spacer()
+                }
             }
             
             ForEach(0..<numberOfDays, id: \.self) { dayNumber in
