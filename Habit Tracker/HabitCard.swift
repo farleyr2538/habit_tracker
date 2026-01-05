@@ -45,9 +45,6 @@ struct HabitCard : View {
                 
             } // end of HStack
             .padding(.top, 5)
-            .padding(.horizontal, 15)
-            //.frame(width: 400)
-            //.background(Color.red)
             
             StaticHorizontalGitHubView(habit: habit)
         } // end of each habit view
@@ -55,6 +52,7 @@ struct HabitCard : View {
         // internal padding
         .padding(.top, 15)
         .padding(.bottom, 20)
+        .padding(.horizontal, 20)
         .background(.white)
         .cornerRadius(15)
         

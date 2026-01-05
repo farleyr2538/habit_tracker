@@ -58,7 +58,7 @@ struct CreateHabitSheet: View {
                     // .frame(width: 300)
                     
                     // color picker
-                    ColorPicker("Colour", selection: $color)
+                    // ColorPicker("Colour", selection: $color)
                     
                     Text("Select any recent dates you have completed this habit")
                     .foregroundStyle(.gray)
