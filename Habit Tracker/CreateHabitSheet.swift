@@ -21,7 +21,7 @@ struct CreateHabitSheet: View {
     @Environment(\.modelContext) private var context
     
     var body: some View {
-        
+            
         NavigationStack {
             
             ScrollView {
@@ -29,9 +29,12 @@ struct CreateHabitSheet: View {
                 VStack(spacing: 15) {
                     
                     HStack(alignment: .firstTextBaseline) {
+                        
                         Label("Habit name: ", systemImage: "person.fill")
                             .labelStyle(.titleOnly)
+                        
                         Spacer()
+                        
                         TextField("Knitting", text: $newHabit.name)
                             .textFieldStyle(.roundedBorder)
                         //.background(Color.gray.opacity(0.2))
@@ -60,42 +63,12 @@ struct CreateHabitSheet: View {
                     
                     MonthView(selectedDate: Date(), habit: newHabit)
                     
-                    
-                    /*
-                     Button {
-                     if newHabit.name.isEmpty {
-                     newHabitError.toggle()
-                     } else {
-                     // save habit
-                     let habitToInsert = Habit(name: newHabit.name, dates: newHabit.dates)
-                     context.insert(habitToInsert)
-                     do {
-                     try context.save()
-                     } catch {
-                     print("failed to save habit: \(habitToInsert.name)")
-                     }
-                     
-                     // reset 'newHabit'
-                     newHabit.name = ""
-                     newHabit.dates = []
-                     
-                     // hide sheet
-                     habitEditorShowing.toggle()
-                     }
-                     } label: {
-                     Text("Add")
-                     .padding(5)
-                     }
-                     .padding(.top, 5)
-                     .buttonBorderShape(.capsule)
-                     .buttonStyle(.borderedProminent)
-                     */
-                    
                     Spacer()
                 }
                 
                 .padding(.horizontal, 50)
             }
+            .scrollContentBackground(.hidden)
             .onAppear {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     textFieldFocused = true
@@ -106,14 +79,13 @@ struct CreateHabitSheet: View {
                     newHabitError.toggle()
                 }
             }
-            
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button {
                         habitEditorShowing = false
                     } label: {
                         Image(systemName: "xmark.circle.fill")
-                            //.foregroundStyle(.red)
+                        //.foregroundStyle(.red)
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
@@ -145,6 +117,8 @@ struct CreateHabitSheet: View {
                 }
             }
             .navigationTitle("Create Habit")
+            .navigationBarTitleDisplayMode(.inline)
+            //.toolbarBackground(.ultraThinMaterial, for: .navigationBar)
         }
     }
 }
@@ -154,6 +128,6 @@ struct CreateHabitSheet: View {
         newHabit: Habit(name: "", dates: []),
         habitEditorShowing: .constant(true)
     )
-        .environmentObject(ViewModel())
-        .modelContainer(for: Habit.self, inMemory: true)
+    .environmentObject(ViewModel())
+    .modelContainer(for: Habit.self, inMemory: true)
 }

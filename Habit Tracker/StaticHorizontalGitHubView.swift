@@ -50,10 +50,9 @@ struct StaticHorizontalGitHubView: View {
                 .padding(.horizontal, -3)
             }
         }
-        .frame(height: 90)
+        //.frame(height: 90)
         .padding(.horizontal)
         .scrollTargetLayout()
-        //.frame(height: 200)
     }
 }
 

@@ -36,52 +36,65 @@ struct HabitListView: View {
         
         let today = calendar.startOfDay(for: Date())
         
-        ScrollView {
+        //ScrollView {
             
-            LazyVGrid(columns: columns) {
+            List {
                 
-                ForEach(habits) { habit in
+                //LazyVGrid(columns: columns) {
                     
-                    VStack {
-                        HStack {
-                            Text(habit.name)
-                                .font(.title3)
-                            
-                            Spacer()
-                            
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 15.0)
-                                    .foregroundStyle(.gray.opacity(0.2))
-                                Image(systemName: "checkmark")
-                            }
-                            .onTapGesture {
-                                
-                                let impact = UIImpactFeedbackGenerator(style: .medium)
-                                impact.impactOccurred()
-                                
-                                if habit.dates.contains(today) {
-                                    habit.dates.removeAll(where: { $0 == today })
-                                } else {
-                                    habit.dates.append(today)
-                                }
-                            }
-                            .frame(width: 50, height: 50)
-                            
-                        }
-                        .padding(.top, 20)
-                        .padding(.horizontal, 20)
+                    ForEach(habits) { habit in
                         
-                        StaticHorizontalGitHubView(habit: habit)
+                        VStack {
+                            HStack {
+                                Text(habit.name)
+                                    .font(.title3)
+                                
+                                Spacer()
+                                
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 15.0)
+                                        .foregroundStyle(.gray.opacity(0.2))
+                                    Image(systemName: "checkmark")
+                                }
+                                .onTapGesture {
+                                    
+                                    let impact = UIImpactFeedbackGenerator(style: .medium)
+                                    impact.impactOccurred()
+                                    
+                                    if habit.dates.contains(today) {
+                                        habit.dates.removeAll(where: { $0 == today })
+                                    } else {
+                                        habit.dates.append(today)
+                                    }
+                                }
+                                .frame(width: 50, height: 50)
+                                
+                            }
+                            //.padding(.top, 20)
+                            .padding(.horizontal, 20)
+                            
+                            StaticHorizontalGitHubView(habit: habit)
+                        }
+                        
+                        // .frame(width: 400)
+                        .onTapGesture {
+                            coordinator.path.append(habit)
+                        }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            Button(role: .destructive) {
+                                withAnimation {
+                                    context.delete(habit)
+                                    try? context.save()
+                                }
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                        }
                     }
-                    .frame(width: 400)
-                    .onTapGesture {
-                        coordinator.path.append(habit)
-                    }
-                    
-                }
-                .onDelete(perform: deleteHabit)
+                //}
             }
-        }
+            // .listStyle(.plain)
+        //}
     }
 }
 

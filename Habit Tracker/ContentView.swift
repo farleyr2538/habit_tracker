@@ -22,7 +22,9 @@ struct ContentView: View {
     @Environment(\.modelContext) private var context
     
     var body: some View {
+        
         NavigationStack(path: $coordinator.path) {
+            
             Group {
                 if !habits.isEmpty {
                     HabitListView()
@@ -31,44 +33,68 @@ struct ContentView: View {
                         }
                 } else {
                     
-                    ZStack {
-                                            
-                        Color.accentColor
-                            .ignoresSafeArea()
-                    
-                        VStack {
-                            
-                            Spacer()
-                            
-                            Text("No habits yet")
-                                .foregroundStyle(.secondary)
-                                .font(.title3)
-                                       
-                            NewHabitButton(habitEditorShowing: $habitEditorShowing)
-                                .padding(.top, 250)
-                                .padding(.bottom, 100)
-                        }
-                    }
-                }
-            }
-            //.navigationTitle("Habits")
-            /*
-            .toolbar {
-                if !habits.isEmpty {
-                    ToolbarItem {
+                    VStack {
+                        
+                        Spacer()
+                        
+                        Text("No habits yet")
+                            .font(.title3)
+                            .padding(.top, 175)
+                               
+                        Spacer()
+                        
                         Button {
-                            habitEditorShowing = true
+                            habitEditorShowing.toggle()
                         } label: {
-                            Image(systemName: "plus")
+                            Text("Create my first Habit")
+                                .padding(15)
+                                
                         }
+                        .buttonStyle(.borderedProminent)
+                        
+                        
+                        Spacer()
+                        
+                        /*
+                        Group {
+                            
+                            if #available(iOS 26.0, *) {
+                                Button {
+                                    habitEditorShowing.toggle()
+                                } label: {
+                                    Text("Create my first Habit")
+                                        .padding(15)
+                                        .foregroundStyle(.black.opacity(0.8))
+                                }
+                                .buttonStyle(.glass)
+                                .glassEffect()
+                                
+                            } else {
+                                
+                                Button {
+                                    habitEditorShowing.toggle()
+                                } label: {
+                                    Text("Create my first Habit")
+                                        .padding(15)
+                                }
+                                .background(Capsule())
+                                .buttonStyle(.borderedProminent)
+                            }
+                        }
+                        .padding(.top, 250)
+                        .padding(.bottom, 100)
+                         */
+                    }
+                    .sheet(isPresented: $habitEditorShowing) {
+                        CreateHabitSheet(habitEditorShowing: $habitEditorShowing)
+                            .presentationBackground(.ultraThinMaterial)
                     }
                 }
             }
-            */
+            .frame(maxWidth: .infinity)
+            .background(Color.background)
         }
-        .sheet(isPresented: $habitEditorShowing) {
-            CreateHabitSheet(habitEditorShowing: $habitEditorShowing)
-        }
+        
         .environment(coordinator)
     }
 }
@@ -86,4 +112,5 @@ struct ContentView: View {
         }
      */
 }
+
 
