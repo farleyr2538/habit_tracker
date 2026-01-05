@@ -30,21 +30,28 @@ struct MonthView: View {
                 
         let daysOfWeek = ["Mon", "Tues", "Weds", "Thurs", "Fri", "Sat", "Sun"]
         
-        VStack {
+        VStack(spacing: 20) {
+            
             Text(monthText + " " + String(year))
                 .font(.headline)
+            
             HStack {
+                
                 Image(systemName: "chevron.left")
                     .onTapGesture {
                         // decrement month by one
                         selectedDate = viewModel.adjust(givenDate: selectedDate, months: -1)
                     }
                     .frame(width: 10, height: 10)
+                
                 LazyVGrid(columns: gridColumns) {
+                    
                     ForEach(daysOfWeek, id: \.self) { day in
                         Text(day)
                             .font(.footnote)
                     }
+                    .padding(.bottom, 5)
+                    
                     ForEach(0..<(totalDays), id: \.self) { index in
                         if (index >= firstDay) {
                             

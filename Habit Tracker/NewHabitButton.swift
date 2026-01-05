@@ -20,12 +20,8 @@ struct NewHabitButton: View {
                 Text("Create my first Habit")
                     .padding(15)
             }
-            .background(
-                Capsule()
-                    .fill(.white)
-            )
             .buttonStyle(.glass)
-            
+            .glassEffect()
         } else {
             Button {
                 habitEditorShowing.toggle()
