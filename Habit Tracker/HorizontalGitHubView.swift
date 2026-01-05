@@ -86,7 +86,7 @@ struct HorizontalGitHubView: View {
                 //.frame(height: 200)
             }
             .frame(height: 100)
-            .scrollIndicators(.hidden)
+            .scrollIndicators(.visible)
             .defaultScrollAnchor(.trailing)
             .scrollBounceBehavior(.basedOnSize)
             .scrollPosition(id: $scrollPosition)

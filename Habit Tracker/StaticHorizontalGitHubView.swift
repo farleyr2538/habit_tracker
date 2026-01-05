@@ -13,7 +13,7 @@ struct StaticHorizontalGitHubView: View {
     
     @State var habit : Habit
     
-    @State var numberOfDays : Int = 28 * 7
+    @State var numberOfDays : Int = 26 * 7
     @State var numberOfRows = 7
     
     var body: some View {
@@ -50,8 +50,8 @@ struct StaticHorizontalGitHubView: View {
                 .padding(.horizontal, -3)
             }
         }
-        //.frame(height: 90)
-        .padding(.horizontal)
+        .frame(height: 90)
+        //.padding(.horizontal)
         .scrollTargetLayout()
     }
 }

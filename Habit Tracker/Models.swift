@@ -19,9 +19,9 @@ class Habit : Hashable {
     
     var name : String
     var dates : [Date]
-    // var color : Color?
+    var colorHash : String?
     var dateCreated : Date = Date()
-    var fromDateCreated : Bool = false
+    var startFrom : Date?
     
     init(name: String, dates: [Date]) {
         self.name = name
