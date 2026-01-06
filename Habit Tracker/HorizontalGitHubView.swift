@@ -22,6 +22,7 @@ struct HorizontalGitHubView: View {
     
     var body: some View {
         
+        let allWeekdays = ["Mon", "Tues", "Weds", "Thurs", "Fri", "Sat", "Sun"]
         let selectedWeekdays = ["Mon", "", "Weds", "", "Fri", "", "Sun"]
         
         let gridRows : [GridItem] = Array(repeating: GridItem(.fixed(1), spacing: 10), count: numberOfRows) // number of rows permitted
@@ -43,8 +44,14 @@ struct HorizontalGitHubView: View {
 
             VStack {
                 ForEach(selectedWeekdays, id: \.self) { day in
-                    Text(day)
-                        .font(.system(size: 8.0))
+                    if allWeekdays.contains(day) {
+                        Text(day)
+                            .font(.system(size: 8.0))
+                    } else {
+                        Text(day)
+                            .hidden()
+                    }
+                    
                 }
             }
             
@@ -97,6 +104,9 @@ struct HorizontalGitHubView: View {
                 }
             }
         }
+        
+        // add day number picker, eg. last week, last month, last 3, 6, 12, 24 months
+        
     }
 }
 

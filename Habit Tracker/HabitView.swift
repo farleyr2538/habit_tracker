@@ -13,24 +13,27 @@ struct HabitView: View {
     
     var body: some View {
         
-        VStack(spacing: 20) {
-            
-            HStack {
+        VStack {
+            VStack(spacing: 20) {
                 
-                Text(habit.name)
-                    .font(.title)
+                HStack {
+                    
+                    Text(habit.name)
+                        .font(.title)
+                    
+                    Spacer()
+                }
                 
-                Spacer()
+                HorizontalGitHubView(habit: habit, width: .wide)
+                
+                MonthView(selectedDate: Date(), habit: habit)
+                
+                // Spacer()
+                
             }
-            
-            HorizontalGitHubView(habit: habit, width: .wide)
-            
-            MonthView(selectedDate: Date(), habit: habit)
-            
-            // Spacer()
-            
+            .padding()
+            .background(Color.card)
         }
-        .padding()
         .background(Color.background)
         
     }

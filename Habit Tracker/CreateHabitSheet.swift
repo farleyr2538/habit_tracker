@@ -44,7 +44,8 @@ struct CreateHabitSheet: View {
                             .focused($textFieldFocused)
                             .multilineTextAlignment(.trailing)
                             .textFieldStyle(.roundedBorder)
-                            .textInputAutocapitalization(.words)
+                            .autocorrectionDisabled()
+                            .textContentType(.none)
                             .toolbar {
                                 ToolbarItemGroup(placement: .keyboard) {
                                     Spacer()

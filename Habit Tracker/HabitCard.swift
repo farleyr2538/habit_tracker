@@ -53,7 +53,7 @@ struct HabitCard : View {
         .padding(.top, 15)
         .padding(.bottom, 20)
         .padding(.horizontal, 20)
-        .background(.white)
+        .background(Color.card)
         .cornerRadius(15)
         
     }

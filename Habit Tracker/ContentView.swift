@@ -40,7 +40,8 @@ struct ContentView: View {
                         
                         Text("No habits yet")
                             .font(.title3)
-                            .padding(.top, 175)
+                            .padding(.top, 100)
+                            .foregroundStyle(.secondary)
                                
                         Spacer()
                         
@@ -52,10 +53,8 @@ struct ContentView: View {
                                 
                         }
                         .buttonStyle(.borderedProminent)
-                        
-                        
-                        Spacer()
-                        
+                        .padding(.bottom, 50)
+                                                
                         /*
                         Group {
                             
