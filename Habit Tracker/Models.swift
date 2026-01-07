@@ -20,12 +20,17 @@ class Habit : Hashable {
     var name : String
     var dates : [Date]
     var colorHash : String?
-    var dateCreated : Date = Date()
+    var dateCreated : Date
     var startFrom : Date?
     
-    init(name: String, dates: [Date]) {
+    init(name: String, dates: [Date], colorHash: String? = nil, startFrom: Date? = nil) {
         self.name = name
         self.dates = dates
+        
+        self.colorHash = colorHash
+        
+        self.dateCreated = Date()
+        self.startFrom = startFrom
     }
 }
 
@@ -48,8 +53,15 @@ extension Habit {
         }
         
         return [
-            Habit(name: "Running", dates: dates),
-            Habit(name: "Cooking", dates: dates)
+            Habit(name: "Running", dates: dates, startFrom: dates.first!),
+            Habit(name: "Cooking", dates: dates, startFrom: dates.first!),
+            Habit(name: "Reading the Bible", dates: dates, startFrom: dates.first!),
+            Habit(name: "Waking up early", dates: dates, startFrom: dates.first!)
         ]
     }
+}
+
+struct viewOption {
+    var text : String
+    var days : Int
 }

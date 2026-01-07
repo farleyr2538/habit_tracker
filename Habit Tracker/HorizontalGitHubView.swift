@@ -30,82 +30,114 @@ struct HorizontalGitHubView: View {
         let endDate = viewModel.getEndOfCurrentWeek()
         let startDate = calendar.date(byAdding: .day, value: (1 - numberOfDays), to: calendar.startOfDay(for: endDate))!
         
-        /*
-        Text("numberOfDays: " + String(numberOfDays))
-        Text("end of week: " + endDate.description)
-        Text("startDate: " + startDate.description)
+        // declare array of viewOptions
         
-        ForEach(habit.dates, id: \.self) { date in
-            Text(date.description)
-        }
-         */
-        
-        HStack {
-
-            VStack {
-                ForEach(selectedWeekdays, id: \.self) { day in
-                    if allWeekdays.contains(day) {
-                        Text(day)
-                            .font(.system(size: 8.0))
-                    } else {
-                        Text(day)
-                            .hidden()
+        VStack {
+            HStack {
+                
+                VStack {
+                    ForEach(selectedWeekdays, id: \.self) { day in
+                        if allWeekdays.contains(day) {
+                            Text(day)
+                                .font(.system(size: 8.0))
+                        } else {
+                            Text(day)
+                                .hidden()
+                        }
+                        
                     }
+                }
+                
+                ScrollView([.horizontal]) {
                     
+                    LazyHGrid(rows: gridRows) {
+                        
+                        ForEach(0..<numberOfDays, id: \.self) { dayNumber in
+                            
+                            // for each day, create date, assess whether its in habit.dates
+                            // or, create (weeks * 7) dates, and iterate through them, checking if each is present in habit.dates
+                            
+                            // create date
+                            let date = calendar.date(byAdding: .day, value: dayNumber, to: startDate)!
+                            
+                            // check whether habit.dates contains date
+                            let isComplete = habit.dates.contains(date)
+                            
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 2.0)
+                                    .foregroundStyle(isComplete ? .green : .gray.opacity(0.15))
+                                
+                                /*
+                                 Text(date.description)
+                                 .foregroundStyle(.white)
+                                 .font(.custom("helvetica", size: 2.0))
+                                 */
+                                
+                            }
+                            .frame(width: 10, height: 10)
+                            //.padding(.vertical, -2)
+                            .padding(.horizontal, -3)
+                        }
+                        
+                    }
+                    .frame(height: 90)
+                    .padding(.horizontal)
+                    .scrollTargetLayout()
+                    //.frame(height: 200)
+                }
+                .frame(height: 100)
+                .scrollIndicators(.visible)
+                .defaultScrollAnchor(.trailing)
+                .scrollBounceBehavior(.basedOnSize)
+                .scrollPosition(id: $scrollPosition)
+                .onAppear {
+                    scrollPosition = numberOfDays
+                    if width == .narrow {
+                        numberOfDays = (52 * 7 / 2) + 14
+                    }
                 }
             }
             
-            ScrollView([.horizontal]) {
-                
-                LazyHGrid(rows: gridRows) {
-                    
-                    ForEach(0..<numberOfDays, id: \.self) { dayNumber in
-                        
-                        // for each day, create date, assess whether its in habit.dates
-                        // or, create (weeks * 7) dates, and iterate through them, checking if each is present in habit.dates
-                        
-                        // create date
-                        let date = calendar.date(byAdding: .day, value: dayNumber, to: startDate)!
-                        
-                        // check whether habit.dates contains date
-                        let isComplete = habit.dates.contains(date)
-                        
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 2.0)
-                                .foregroundStyle(isComplete ? .green : .gray.opacity(0.15))
-                            
-                            /*
-                             Text(date.description)
-                             .foregroundStyle(.white)
-                             .font(.custom("helvetica", size: 2.0))
-                             */
-                            
-                        }
-                        .frame(width: 10, height: 10)
-                        //.padding(.vertical, -2)
-                        .padding(.horizontal, -3)
+            // add day number picker, eg. last week, last month, last 3, 6, 12, 24 months
+            
+            ScrollView(.horizontal) {
+                HStack {
+                    Button("day") {
+                        numberOfDays = 1
                     }
-                    
+                    Button("week") {
+                        numberOfDays = 7
+                    }
+                    Button("month") {
+                        numberOfDays = 30
+                    }
+                    Button("quarter") {
+                        numberOfDays = 90
+                    }
+                    Button("100 days") {
+                        numberOfDays = 100
+                    }
+                    Button("year") {
+                        numberOfDays = 365
+                    }
+                    if let habitStartingDate = habit.startFrom {
+                        let today = Date()
+                        let difference = calendar.dateComponents([.day], from: habitStartingDate, to: today)
+                        if let days = difference.day {
+                            Button("since start of habit") {
+                                numberOfDays = days
+                            }
+                        }
+                        
+                    }
                 }
-                .frame(height: 90)
-                .padding(.horizontal)
-                .scrollTargetLayout()
-                //.frame(height: 200)
             }
-            .frame(height: 100)
-            .scrollIndicators(.visible)
-            .defaultScrollAnchor(.trailing)
-            .scrollBounceBehavior(.basedOnSize)
-            .scrollPosition(id: $scrollPosition)
-            .onAppear {
-                scrollPosition = numberOfDays
-                if width == .narrow {
-                    numberOfDays = (52 * 7 / 2) + 14
-                }
-            }
+            .scrollIndicators(.hidden)
+            
+            
         }
         
-        // add day number picker, eg. last week, last month, last 3, 6, 12, 24 months
+        
         
     }
 }

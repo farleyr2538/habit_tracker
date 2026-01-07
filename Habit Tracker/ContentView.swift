@@ -31,7 +31,7 @@ struct ContentView: View {
                         .navigationDestination(for: Habit.self) { habit in
                             HabitView(habit: habit)
                         }
-                        .navigationTitle("Your Habits")
+                        .navigationTitle("My Habits")
                 } else {
                     
                     VStack {
@@ -102,7 +102,6 @@ struct ContentView: View {
 #Preview {
     ContentView()
         .environmentObject(ViewModel())
-    /*
         .modelContainer(for: Habit.self, inMemory: true) { result in
             if case .success(let container) = result {
                 Habit.sampleData.forEach { habit in
@@ -110,7 +109,6 @@ struct ContentView: View {
                 }
             }
         }
-     */
 }
 
 

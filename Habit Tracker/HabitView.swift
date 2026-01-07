@@ -14,7 +14,7 @@ struct HabitView: View {
     var body: some View {
         
         VStack {
-            VStack(spacing: 20) {
+            VStack(spacing: 30) {
                 
                 HStack {
                     
@@ -28,14 +28,22 @@ struct HabitView: View {
                 
                 MonthView(selectedDate: Date(), habit: habit)
                 
-                // Spacer()
-                
             }
-            .padding()
+            
+            // padding internal to background, but also pushes card wider to make space
+            .padding(.horizontal, 10)
+            .padding(.vertical, 30)
+            
             .background(Color.card)
+            .cornerRadius(25)
+            
+            // padding external to background
+            .padding(.horizontal)
+            
+            Spacer()
+            
         }
         .background(Color.background)
-        
     }
 }
 

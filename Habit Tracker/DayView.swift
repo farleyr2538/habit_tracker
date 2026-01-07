@@ -17,6 +17,8 @@ struct DayView: View {
     
     var date : Date
     
+    var dimensions = 35.0
+    
     let impact = UIImpactFeedbackGenerator(style: .medium)
     
     var body: some View {
@@ -25,7 +27,7 @@ struct DayView: View {
         
         ZStack {
             Rectangle()
-                .frame(maxWidth: 50, maxHeight: 50)
+                .frame(maxWidth: dimensions, maxHeight: dimensions)
                 .aspectRatio(1, contentMode: .fit)
                 .cornerRadius(15)
                 .scaleEffect(pressEffect ? 0.6 : 1)

@@ -64,12 +64,12 @@ struct MonthView: View {
                                 DayView(completed: isInDates ? true : false, dates: $habit.dates, date: date)
                             }
                         } else {
-                            Spacer()
+                            EmptyView()
                         }
                     }
                 }
-                .frame(minWidth: 300)
-                .padding(.horizontal)
+                .frame(width: 300)
+                .padding(.horizontal, 10)
                 
                 Image(systemName: "chevron.right")
                     .onTapGesture {
@@ -79,14 +79,7 @@ struct MonthView: View {
                 
             }
             .padding(.bottom)
-            /*
-             ForEach(habit.dates, id: \.self) { date in
-                Text(formatter.string(from: date))
-            }
-            */
-            Spacer()
         }
-        // .padding(.vertical, 10)
     }
 }
 

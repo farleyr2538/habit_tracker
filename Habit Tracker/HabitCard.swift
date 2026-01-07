@@ -50,9 +50,9 @@ struct HabitCard : View {
         } // end of each habit view
         
         // internal padding
-        .padding(.top, 15)
-        .padding(.bottom, 20)
-        .padding(.horizontal, 20)
+        .padding(.top, 10)
+        .padding(.bottom, 10)
+        .padding(.horizontal, 15)
         .background(Color.card)
         .cornerRadius(15)
         

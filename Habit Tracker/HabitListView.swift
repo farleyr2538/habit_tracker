@@ -59,9 +59,7 @@ struct HabitListView: View {
                             }
                         }
                 }
-                .padding(.bottom, 20)
-                //}
-                
+                .padding(.bottom, 10)
             }
             
         }
@@ -75,6 +73,7 @@ struct HabitListView: View {
             .padding(.trailing, 30)
             .padding(.bottom, 30)
             .buttonStyle(.borderedProminent)
+            .shadow(radius: 10, x: 5, y: 5)
         }
         .padding(.top, 10)
         .background(Color.background, ignoresSafeAreaEdges: .all)
