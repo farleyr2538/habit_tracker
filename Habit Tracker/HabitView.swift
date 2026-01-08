@@ -53,14 +53,18 @@ struct HabitView: View {
             
             .background(Color.card)
             .cornerRadius(25)
-            
+            .frame(maxWidth: 600)
             // padding external to background
-            .padding(.horizontal)
+            .padding(.horizontal, 10)
+            
+            
             
             Spacer()
             
         }
+        .frame(maxWidth: .infinity)
         .background(Color.background)
+        
         .alert("Delete Habit?", isPresented: $deleteAlertShowing) {
             Button("Delete", role: .destructive) {
                 // navigate back out of HabitView
@@ -83,4 +87,5 @@ struct HabitView: View {
     )
     .environmentObject(ViewModel())
     .modelContainer(for: Habit.self)
+    .environment(NavigationCoordinator())
 }
