@@ -35,20 +35,22 @@ struct HabitListView: View {
     ]
     
     var body: some View {
-        
+                    
         ScrollView {
-                
+            
             LazyVGrid(columns: columns) {
                 
                 ForEach(habits) { habit in
                     
                     HabitCard(habit: habit)
-                        //.padding(.top, 10)
+                    //.padding(.top, 10)
                         .padding(.horizontal, 15)
                         .onTapGesture {
                             coordinator.path.append(habit)
                         }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                        /*
+                         not working
+                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                             Button(role: .destructive) {
                                 withAnimation {
                                     context.delete(habit)
@@ -58,11 +60,15 @@ struct HabitListView: View {
                                 Label("Delete", systemImage: "trash")
                             }
                         }
+                         */
                 }
                 .padding(.bottom, 10)
             }
             
+            
+            
         }
+        
         .safeAreaInset(edge: .bottom, alignment: .trailing) {
             Button {
                 newHabitSheetShowing = true
@@ -75,11 +81,14 @@ struct HabitListView: View {
             .buttonStyle(.borderedProminent)
             .shadow(radius: 10, x: 5, y: 5)
         }
-        .padding(.top, 10)
-        .background(Color.background, ignoresSafeAreaEdges: .all)
+        .padding(.top, 1)
         .sheet(isPresented: $newHabitSheetShowing) {
             CreateHabitSheet(habitEditorShowing: $newHabitSheetShowing)
         }
+        .navigationTitle("My Habits")
+        .navigationBarTitleDisplayMode(.inline)
+        .background(Color.background, ignoresSafeAreaEdges: .all)
+        
     }
 }
 

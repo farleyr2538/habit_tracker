@@ -102,6 +102,14 @@ struct HorizontalGitHubView: View {
             
             ScrollView(.horizontal) {
                 HStack {
+                    if numberOfDays != (52 * 7) {
+                        Button {
+                            numberOfDays = (52 * 7)
+                        } label: {
+                            Image(systemName: "arrow.counterclockwise")
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
                     Button("day") {
                         numberOfDays = 1
                     }
@@ -131,6 +139,8 @@ struct HorizontalGitHubView: View {
                         
                     }
                 }
+                .buttonStyle(.bordered)
+                .padding(.vertical)
             }
             .scrollIndicators(.hidden)
             

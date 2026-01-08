@@ -9,7 +9,12 @@ import SwiftUI
 
 struct HabitView: View {
     
+    @Environment(\.modelContext) private var context
+    @Environment(NavigationCoordinator.self) private var coordinator
+    
     @Bindable var habit : Habit
+    
+    @State private var deleteAlertShowing : Bool = false
     
     var body: some View {
         
@@ -20,6 +25,8 @@ struct HabitView: View {
                     
                     Text(habit.name)
                         .font(.title)
+                        .padding(.leading, 2)
+                        .padding(.top, 5)
                     
                     Spacer()
                 }
@@ -28,10 +35,20 @@ struct HabitView: View {
                 
                 MonthView(selectedDate: Date(), habit: habit)
                 
+                Button(role: .destructive) {
+                    
+                    deleteAlertShowing = true
+                    
+                } label: {
+                    Text("Delete Habit")
+                        .padding(5)
+                }
+                .buttonStyle(.borderedProminent)
+                
             }
             
             // padding internal to background, but also pushes card wider to make space
-            .padding(.horizontal, 10)
+            .padding(.leading, 10)
             .padding(.vertical, 30)
             
             .background(Color.card)
@@ -44,6 +61,19 @@ struct HabitView: View {
             
         }
         .background(Color.background)
+        .alert("Delete Habit?", isPresented: $deleteAlertShowing) {
+            Button("Delete", role: .destructive) {
+                // navigate back out of HabitView
+                coordinator.path.removeLast()
+                
+                // delete habit
+                context.delete(habit)
+                
+                // save
+                try? context.save()
+            }
+            Button("Cancel", role: .cancel) {}
+        }
     }
 }
 
@@ -52,4 +82,5 @@ struct HabitView: View {
         habit: Habit.sampleData.first!
     )
     .environmentObject(ViewModel())
+    .modelContainer(for: Habit.self)
 }

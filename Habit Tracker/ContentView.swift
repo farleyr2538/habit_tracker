@@ -31,7 +31,7 @@ struct ContentView: View {
                         .navigationDestination(for: Habit.self) { habit in
                             HabitView(habit: habit)
                         }
-                        .navigationTitle("My Habits")
+                        
                 } else {
                     
                     VStack {

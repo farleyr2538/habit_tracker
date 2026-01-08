@@ -65,3 +65,8 @@ struct viewOption {
     var text : String
     var days : Int
 }
+
+enum Direction {
+    case left
+    case right
+}

@@ -27,29 +27,39 @@ struct DayView: View {
         
         ZStack {
             Rectangle()
-                .frame(maxWidth: dimensions, maxHeight: dimensions)
+                .frame(width: dimensions, height: dimensions)
                 .aspectRatio(1, contentMode: .fit)
-                .cornerRadius(15)
-                .scaleEffect(pressEffect ? 0.6 : 1)
+                .cornerRadius(10)
+                .scaleEffect(pressEffect ? 0.4 : 1)
                 .foregroundStyle(completed ? .green : .black)
-                .onTapGesture {
-                    impact.impactOccurred()
-                    withAnimation(.bouncy) {
-                        pressEffect.toggle()
-                        if !completed {
-                            dates.append(calendar.startOfDay(for: date))
-                        } else {
-                            dates.removeAll { calendar.isDate($0, inSameDayAs: date) }
-                        }
-                    }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.02) {
-                        withAnimation(.bouncy) {
-                            pressEffect.toggle()
-                        }
-                    }
-                }
+
             Text(String(dayNumber))
                 .foregroundStyle(.white)
+                .font(.system(size: 16))
+        }
+        .onTapGesture {
+            
+            // haptic
+            impact.impactOccurred()
+            
+            // apply scale effect
+            withAnimation(.bouncy) {
+                pressEffect = true
+            }
+            
+            if !completed {
+                dates.append(calendar.startOfDay(for: date))
+            } else {
+                dates.removeAll { calendar.isDate($0, inSameDayAs: date) }
+            }
+            
+            // disapply scale effect after delay
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                withAnimation(.bouncy) {
+                    pressEffect = false
+                }
+            }
+            
         }
     }
 }

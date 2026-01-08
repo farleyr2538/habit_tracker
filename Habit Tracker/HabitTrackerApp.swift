@@ -16,8 +16,9 @@ struct HabitTrackerApp : App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environmentObject(viewModel)
+                
         }
+        .environmentObject(viewModel)
         .modelContainer(for: Habit.self)
     }
 }

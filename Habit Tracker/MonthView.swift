@@ -18,17 +18,18 @@ struct MonthView: View {
     
     var body: some View {
         
-        let gridColumns = Array(repeating: GridItem(.flexible()), count: 7)
+        let gridColumns = Array(repeating: GridItem(.fixed(40.0), spacing: 0), count: 7)
         
         let daysInMonth : Int = viewModel.daysInMonth(date: selectedDate)
         let firstDay : Int = viewModel.firstDayOfMonth(date: selectedDate)
-        let totalDays = daysInMonth + firstDay
+        let totalDays = daysInMonth + firstDay // including initial buffers
         
+        // get date info for display
         let month = calendar.component(.month, from: selectedDate)
         let year = calendar.component(.year, from: selectedDate)
         let monthText = viewModel.monthName(from: calendar.component(.month, from: selectedDate))
                 
-        let daysOfWeek = ["Mon", "Tues", "Weds", "Thurs", "Fri", "Sat", "Sun"]
+        let daysOfWeek = ["Mon", "Tues", "Weds", "Thur", "Fri", "Sat", "Sun"]
         
         VStack(spacing: 20) {
             
@@ -37,18 +38,19 @@ struct MonthView: View {
             
             HStack {
                 
-                Image(systemName: "chevron.left")
+                Spacer()
+                
+                Chevron(direction: .left)
                     .onTapGesture {
                         // decrement month by one
                         selectedDate = viewModel.adjust(givenDate: selectedDate, months: -1)
                     }
-                    .frame(width: 10, height: 10)
                 
-                LazyVGrid(columns: gridColumns) {
+                LazyVGrid(columns: gridColumns, spacing: 4) {
                     
                     ForEach(daysOfWeek, id: \.self) { day in
                         Text(day)
-                            .font(.footnote)
+                            .font(.system(size: 10.0))
                     }
                     .padding(.bottom, 5)
                     
@@ -64,18 +66,19 @@ struct MonthView: View {
                                 DayView(completed: isInDates ? true : false, dates: $habit.dates, date: date)
                             }
                         } else {
-                            EmptyView()
+                            Spacer()
                         }
                     }
                 }
                 .frame(width: 300)
-                .padding(.horizontal, 10)
                 
-                Image(systemName: "chevron.right")
+                Chevron(direction: .right)
                     .onTapGesture {
                         // incredment month by 1
                         selectedDate = viewModel.adjust(givenDate: selectedDate, months: 1)
                     }
+                
+                Spacer()
                 
             }
             .padding(.bottom)

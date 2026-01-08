@@ -11,6 +11,8 @@ struct HabitCard : View {
     
     @Bindable var habit : Habit
     
+    @State var tickIsGreen : Bool = false
+    
     let today = calendar.startOfDay(for: Date())
     
     var body : some View {
@@ -26,8 +28,10 @@ struct HabitCard : View {
                 
                 ZStack {
                     RoundedRectangle(cornerRadius: 15.0)
-                        .foregroundStyle(.gray.opacity(0.2))
+                        .foregroundStyle(tickIsGreen ? .green.opacity(1.0) : .gray.opacity(0.2))
                     Image(systemName: "checkmark")
+                        .foregroundStyle(tickIsGreen ? .white : .black)
+                        
                 }
                 .onTapGesture {
                     
@@ -36,8 +40,10 @@ struct HabitCard : View {
                     
                     if habit.dates.contains(today) {
                         habit.dates.removeAll(where: { $0 == today })
+                        tickIsGreen = false
                     } else {
                         habit.dates.append(today)
+                        tickIsGreen = true
                     }
                 }
                 .frame(width: 50, height: 50)
