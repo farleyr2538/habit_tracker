@@ -70,7 +70,7 @@ struct MonthView: View {
                         }
                     }
                 }
-                .frame(width: 300)
+                .frame(width: 290)
                 
                 Chevron(direction: .right)
                     .onTapGesture {

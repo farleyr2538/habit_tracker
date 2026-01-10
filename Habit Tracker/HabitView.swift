@@ -48,16 +48,15 @@ struct HabitView: View {
             }
             
             // padding internal to background, but also pushes card wider to make space
-            .padding(.leading, 10)
+            .padding(.horizontal, 10)
             .padding(.vertical, 30)
             
             .background(Color.card)
             .cornerRadius(25)
-            .frame(maxWidth: 600)
+            .frame(maxWidth: 600) // for iPad
+            
             // padding external to background
-            .padding(.horizontal, 10)
-            
-            
+            .padding(.horizontal, 15)
             
             Spacer()
             

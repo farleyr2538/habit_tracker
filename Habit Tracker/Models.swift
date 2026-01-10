@@ -40,15 +40,26 @@ extension Habit {
         
         // dates should be 12, 14, 15 and 16 of December 2025
         
-        let days = [12, 14, 15, 16]
-        var components : [DateComponents] = []
+        let decemberDays = [12, 14, 15, 16]
+        var decemberComponents : [DateComponents] = []
         
-        for day in days {
-            components.append(DateComponents(year: 2025, month: 12, day: day))
+        for day in decemberDays {
+            decemberComponents.append(DateComponents(year: 2025, month: 12, day: day))
         }
         
         var dates : [Date] = []
-        for component in components {
+        for component in decemberComponents {
+            dates.append(calendar.date(from: component)!)
+        }
+        
+        let januaryDays = [3, 5, 6, 8]
+        var januaryComponents : [DateComponents] = []
+        
+        for day in januaryDays {
+            januaryComponents.append(DateComponents(year: 2025, month: 12, day: day))
+        }
+        
+        for component in januaryComponents {
             dates.append(calendar.date(from: component)!)
         }
         

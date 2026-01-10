@@ -15,8 +15,8 @@ struct Chevron: View {
                             
         ZStack {
             RoundedRectangle(cornerRadius: 8.0)
-                .foregroundColor(.secondary.opacity(0.2))
-                .frame(width: 25, height: 90)
+                .foregroundColor(.secondary.opacity(0.1))
+                .frame(width: 20, height: 90)
             if direction == .left {
                 Image(systemName: "chevron.left")
             } else {

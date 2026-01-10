@@ -117,17 +117,20 @@ struct HorizontalGitHubView: View {
                         numberOfDays = 7
                     }
                     Button("month") {
-                        numberOfDays = 30
+                        numberOfDays = (7*4)
                     }
                     Button("quarter") {
-                        numberOfDays = 90
+                        numberOfDays = (7*13)
                     }
+                    /*
                     Button("100 days") {
                         numberOfDays = 100
                     }
+                     */
                     Button("year") {
-                        numberOfDays = 365
+                        numberOfDays = (7*52)
                     }
+                    
                     if let habitStartingDate = habit.startFrom {
                         let today = Date()
                         let difference = calendar.dateComponents([.day], from: habitStartingDate, to: today)
