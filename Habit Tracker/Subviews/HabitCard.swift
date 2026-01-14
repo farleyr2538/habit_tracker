@@ -30,7 +30,8 @@ struct HabitCard : View {
                     RoundedRectangle(cornerRadius: 15.0)
                         .foregroundStyle(tickIsGreen ? .green.opacity(1.0) : .gray.opacity(0.2))
                     Image(systemName: "checkmark")
-                        .foregroundStyle(tickIsGreen ? .white : .black)
+                        .foregroundStyle(tickIsGreen ? .white : .unselectedCheckmark)
+                        // .foregroundStyle(.white)
                         
                 }
                 .onTapGesture {
@@ -54,13 +55,19 @@ struct HabitCard : View {
             
             StaticHorizontalGitHubView(habit: habit)
         } // end of each habit view
-        
+        .onAppear {
+            if habit.dates.contains(today) {
+                tickIsGreen = true
+            }
+        }
         // internal padding
         .padding(.top, 10)
         .padding(.bottom, 10)
         .padding(.horizontal, 15)
         .background(Color.card)
         .cornerRadius(15)
+        
+        
         
     }
     
