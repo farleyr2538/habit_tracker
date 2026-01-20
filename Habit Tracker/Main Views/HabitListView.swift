@@ -13,7 +13,7 @@ struct HabitListView: View {
     @Environment(NavigationCoordinator.self) private var coordinator
     
     // SwiftData
-    @Query private var habits : [Habit]
+    @Query(sort: [SortDescriptor(\Habit.dateCreated, order: .forward)]) private var habits : [Habit]
     @Environment(\.modelContext) private var context
     
     @State var newHabitSheetShowing : Bool = false
@@ -63,12 +63,12 @@ struct HabitListView: View {
                          */
                 }
                 .padding(.bottom, 10)
+                
+                NavigationLink("See all habits") {
+                    AllHabitsGrid()
+                }
             }
-            
-            
-            
         }
-        
         .safeAreaInset(edge: .bottom, alignment: .trailing) {
             Button {
                 newHabitSheetShowing = true

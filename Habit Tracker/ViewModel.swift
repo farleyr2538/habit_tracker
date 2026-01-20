@@ -14,11 +14,16 @@ var formatter = DateFormatter()
 
 class ViewModel : ObservableObject {
     
-    @Published var habits : [Habit] = []
+    // @Published var habits : [Habit] = []
     @Published var userConfig = UserConfig()
     
-    init() { // record the date the user first sets up the app
+    // private let modelContext : ModelContext
+    
+    init(/*modelContext: ModelContext*/) {
                 
+        // self.modelContext = modelContext
+        
+        // record the date the user first sets up the app
         if let lastMonth = calendar.date(byAdding: .month, value: -1, to: userConfig.setupDate) { // returns optional Date type for same day in previous month
             let desiredMonth = calendar.component(.month, from: lastMonth)
             let currentYear = calendar.component(.year, from: userConfig.setupDate)
@@ -88,12 +93,12 @@ class ViewModel : ObservableObject {
         }
     }
     
-    func adjust(givenDate: Date, months: Int) -> Date {
+    /*func adjust(givenDate: Date, months: Int) -> Date {
         guard let newDate : Date = calendar.date(byAdding: .month, value: months, to: givenDate) else {
                 fatalError("Could not create date")
         }
         return newDate
-    }
+    }*/
 
     
     func datesInLast(dateComponent: Calendar.Component, number: Int) -> [Date] {
@@ -113,7 +118,9 @@ class ViewModel : ObservableObject {
     }
     
     func getEndOfCurrentWeek() -> Date {
+        
         let today = Date()
+        
         if let weekInterval = calendar.dateInterval(of: .weekOfYear, for: today) {
             let end = weekInterval.end
             let weekEnd = calendar.date(byAdding: .day, value: -1, to: end)!
@@ -121,6 +128,78 @@ class ViewModel : ObservableObject {
         } else {
             return Date()
         }
+        
+    }
+    
+    // function to create a "meta-habit", with a score each day representing the proportion of your habits that you completed that day
+    func createDayScores(habits: [Habit]) -> [Double] {
+        
+        print("running createDayScores...")
+        
+        let today = calendar.startOfDay(for: Date())
+        
+        var opacities : [Double] = []
+        
+        let yearInWeeks = 7 * 52
+        
+        for x in 0..<yearInWeeks { // for each day in the last year
+            
+            // create date by subtracting x from today
+            let date = calendar.date(byAdding: .day, value: -x, to: today)!
+            
+            var possibleHabits : Double = 0
+            var completedHabits : Double = 0
+            
+            for habit in habits { // for each habit
+                let startingDate = habit.startFrom
+                if date >= startingDate { // if the date we are assessing is after the habit began
+                    possibleHabits += 1 // acknowledge that this was an opportunity to complete the habit
+                    if habit.dates.contains(date) { // if you completed this habit on this day
+                        //print("incrementing completedHabits for habit: \(habit.name)")
+                        completedHabits += 1 // increment completed habits
+                    }
+                } else {
+                    //print("date \(date.description) is before habit \(habit.name) started")
+                }
+                /*} else {
+                    print("unable to unwrap startingDate for habit: \(habit.name)")
+                }*/
+            }
+            
+            if possibleHabits != 0 {
+                let preciseOpacityValue = (completedHabits / possibleHabits)
+                let roundedOpacityValue = (preciseOpacityValue * 100).rounded() / 100
+                opacities.insert(roundedOpacityValue, at: 0)
+            } else {
+                opacities.insert(0, at: 0)
+            }
+            
+            
+        }
+        return opacities
+    }
+    
+    // calculate correct startingDate for a given habit
+    func calculateStartFrom(habit: Habit) -> Date {
+        // return whichever is earlier of dateCreated or the first date in our habit
+        
+        let dateCreated = habit.dateCreated
+        
+        if let earliestDate = habit.dates.min() {
+            
+            if dateCreated < earliestDate {
+                return dateCreated
+            } else if dateCreated > earliestDate {
+                return earliestDate
+            } else {
+                return dateCreated
+            }
+        } else {
+            return dateCreated
+        }
+        
+        
+        
         
     }
     

@@ -31,6 +31,13 @@ struct ContentView: View {
                         .navigationDestination(for: Habit.self) { habit in
                             HabitView(habit: habit)
                         }
+                        .onAppear {
+                            for habit in habits {
+                                habit.startFrom = viewModel.calculateStartFrom(habit: habit)
+                                
+                                try? context.save() 
+                            }
+                        }
                         
                 } else {
                     

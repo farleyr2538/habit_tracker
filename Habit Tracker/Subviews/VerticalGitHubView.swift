@@ -29,6 +29,7 @@ struct VerticalGitHubView: View {
                 return hypothesis
             }
         }
+        
         // eg. if Sunday: 1, if Thursday: 5
         // we need to have this many - 1 days on the last row
         // therefore, we need this many - 1 spaces on the first row?

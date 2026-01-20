@@ -14,64 +14,6 @@ enum Width {
     case narrow
 }
 
-@Model
-class Habit : Hashable {
-    
-    var name : String
-    var dates : [Date]
-    var colorHash : String?
-    var dateCreated : Date
-    var startFrom : Date?
-    
-    init(name: String, dates: [Date], colorHash: String? = nil, startFrom: Date? = nil) {
-        self.name = name
-        self.dates = dates
-        
-        self.colorHash = colorHash
-        
-        self.dateCreated = Date()
-        self.startFrom = startFrom
-    }
-}
-
-extension Habit {
-    
-    static var sampleData: [Habit] {
-        
-        // dates should be 12, 14, 15 and 16 of December 2025
-        
-        let decemberDays = [12, 14, 15, 16]
-        var decemberComponents : [DateComponents] = []
-        
-        for day in decemberDays {
-            decemberComponents.append(DateComponents(year: 2025, month: 12, day: day))
-        }
-        
-        var dates : [Date] = []
-        for component in decemberComponents {
-            dates.append(calendar.date(from: component)!)
-        }
-        
-        let januaryDays = [3, 5, 6, 8]
-        var januaryComponents : [DateComponents] = []
-        
-        for day in januaryDays {
-            januaryComponents.append(DateComponents(year: 2025, month: 12, day: day))
-        }
-        
-        for component in januaryComponents {
-            dates.append(calendar.date(from: component)!)
-        }
-        
-        return [
-            Habit(name: "Running", dates: dates, startFrom: dates.first!),
-            Habit(name: "Cooking", dates: dates, startFrom: dates.first!),
-            Habit(name: "Reading the Bible", dates: dates, startFrom: dates.first!),
-            Habit(name: "Waking up early", dates: dates, startFrom: dates.first!)
-        ]
-    }
-}
-
 struct viewOption {
     var text : String
     var days : Int
@@ -80,4 +22,138 @@ struct viewOption {
 enum Direction {
     case left
     case right
+}
+
+typealias Habit = SchemaV2.Habit
+
+enum SchemaV2 : VersionedSchema {
+    
+    static var versionIdentifier: Schema.Version {
+        Schema.Version(2, 0, 0)
+    }
+    
+    static var models: [any PersistentModel.Type] { [Habit.self] }
+    
+    @Model
+    class Habit : Hashable {
+        
+        var name : String
+        var dates : [Date]
+        
+        var colorHash : String?
+        
+        var dateCreated : Date
+        var startFrom : Date
+        
+        init(name: String, dates: [Date], colorHash: String? = nil, dateCreated: Date = calendar.startOfDay(for: Date()), startFrom: Date = calendar.startOfDay(for: Date())) {
+            self.name = name
+            self.dates = dates
+            
+            self.colorHash = colorHash
+            
+            self.dateCreated = dateCreated // the day the habit was created
+            self.startFrom = startFrom // either the day the habit was created or the earliest date in its dates, whichever is earlier
+        }
+    }
+    
+}
+
+enum SchemaV1 : VersionedSchema {
+    
+    static var versionIdentifier: Schema.Version {
+        Schema.Version(1, 0, 0)
+    }
+    
+    static var models: [any PersistentModel.Type] { [Habit.self] }
+    
+    @Model
+    class Habit : Hashable {
+        
+        var name : String
+        var dates : [Date]
+        
+        var colorHash : String?
+        
+        var dateCreated : Date
+        var startFrom : Date?
+        
+        init(name: String, dates: [Date], colorHash: String? = nil, dateCreated: Date = calendar.startOfDay(for: Date()), startFrom: Date? = nil) {
+            self.name = name
+            self.dates = dates
+            
+            self.colorHash = colorHash
+            
+            self.dateCreated = dateCreated // the day the habit was created
+            self.startFrom = startFrom // either the day the habit was created or the earliest date in dates, whichever is earlier
+        }
+    }
+    
+}
+
+
+enum MigrationPlan : SchemaMigrationPlan {
+    static var schemas: [any VersionedSchema.Type] = [SchemaV1.self, SchemaV2.self]
+    
+    static var stages: [MigrationStage] {
+        [
+            migrateV1ToV2
+        ]
+    }
+    
+    static let migrateV1ToV2 = MigrationStage.custom(
+        fromVersion: SchemaV1.self,
+        toVersion: SchemaV2.self,
+        willMigrate: { context in
+            let habits = try context.fetch(FetchDescriptor<SchemaV1.Habit>())
+            
+            for habit in habits {
+                
+                habit.dateCreated = calendar.startOfDay(for: habit.dateCreated) // dateCreated is not optional, so has a value. dateCreated was at one point just the exact time the habit was made. instead, it should be the start of that day.
+                
+                if habit.startFrom == nil {
+                    habit.startFrom = habit.dateCreated // startFrom is an optional, and in most cases nil. Assign dateCreated to startFrom by default. this can be adapted later.
+                }
+            }
+            
+            try context.save()
+        },
+        didMigrate: nil
+    )
+}
+
+
+extension SchemaV2.Habit {
+    static var sampleData : [Habit] {
+        
+        let decDays = [3, 6, 9, 15]
+        var decDates : [Date] = []
+        
+        let janDays = [1, 3, 5, 7]
+        var janDates : [Date] = []
+        
+        for day in janDays {
+            let components = DateComponents(year: 2025, month: 12, day: day)
+            if let date = calendar.date(from: components) {
+                decDates.append(date)
+            }
+        }
+        
+        for day in decDays {
+            let components = DateComponents(year: 2026, month: 1, day: day)
+            if let date = calendar.date(from: components) {
+                janDates.append(date)
+            }
+        }
+        
+        let decStartDateComponents = DateComponents(year: 2025, month: 12, day: 1)
+        let decStartDate = calendar.date(from: decStartDateComponents)!
+        
+        let janStartDateComponenents = DateComponents(year: 2026, month: 1, day: 1)
+        let janStartDate = calendar.date(from: janStartDateComponenents)!
+        
+        return [
+            Habit(name: "Running", dates: decDates, dateCreated: decStartDate, startFrom: decStartDate),
+            Habit(name: "Knitting", dates: janDates, dateCreated: janStartDate, startFrom: janStartDate)
+        ]
+    }
 }

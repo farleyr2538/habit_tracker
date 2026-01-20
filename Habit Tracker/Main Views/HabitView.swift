@@ -15,6 +15,9 @@ struct HabitView: View {
     @Bindable var habit : Habit
     
     @State private var deleteAlertShowing : Bool = false
+    @State private var editAlertShowing : Bool = false
+    
+    @State private var newName : String = ""
     
     var body: some View {
         
@@ -23,10 +26,16 @@ struct HabitView: View {
                 
                 HStack {
                     
-                    Text(habit.name)
-                        .font(.title)
-                        .padding(.leading, 2)
-                        .padding(.top, 5)
+                    VStack(alignment: .leading) {
+                        Text(habit.name)
+                            .font(.title)
+                        
+                        Text("Created: " + habit.dateCreated.formatted(date: .long, time: .omitted))
+                            .font(.subheadline)
+                            .foregroundStyle(.gray)
+                    }
+                    .padding(.leading, 5)
+                    .padding(.top, 5)
                     
                     Spacer()
                 }
@@ -35,15 +44,28 @@ struct HabitView: View {
                 
                 MonthView(selectedDate: Date(), habit: habit)
                 
-                Button(role: .destructive) {
+                HStack(spacing: 20) {
                     
-                    deleteAlertShowing = true
+                    Button {
+                        editAlertShowing = true
+                    } label: {
+                        Text("Rename Habit")
+                            .padding(5)
+                    }
+                    .buttonStyle(.bordered)
                     
-                } label: {
-                    Text("Delete Habit")
-                        .padding(5)
+                    Button(role: .destructive) {
+                        
+                        deleteAlertShowing = true
+                        
+                    } label: {
+                        Text("Delete Habit")
+                            .padding(5)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    
                 }
-                .buttonStyle(.borderedProminent)
+                
                 
             }
             
@@ -76,6 +98,20 @@ struct HabitView: View {
                 try? context.save()
             }
             Button("Cancel", role: .cancel) {}
+        }
+        .alert("Rename Habit", isPresented: $editAlertShowing) {
+            TextField("New Name", text: $newName)
+            Button("Cancel", role: .cancel) {}
+            Button("Confirm") {
+                
+                habit.name = newName
+                newName = ""
+                
+                try? context.save()
+            }
+            .disabled(newName.isEmpty)
+        } message: {
+            Text("Please enter a new name")
         }
     }
 }

@@ -43,7 +43,10 @@ struct MonthView: View {
                 Chevron(direction: .left)
                     .onTapGesture {
                         // decrement month by one
-                        selectedDate = viewModel.adjust(givenDate: selectedDate, months: -1)
+                        if let newSelectedDate = calendar.date(byAdding: .month, value: -1, to: selectedDate) {
+                            selectedDate = newSelectedDate
+                        }
+                        
                     }
                 
                 LazyVGrid(columns: gridColumns, spacing: 4) {
@@ -63,7 +66,11 @@ struct MonthView: View {
                             if let date = calendar.date(from: components) {
                                 // if date is in dates...
                                 let isInDates = habit.dates.contains(date)
-                                DayView(completed: isInDates ? true : false, dates: $habit.dates, date: date)
+                                DayView(
+                                    habit: habit,
+                                    date: date,
+                                    completed: isInDates ? true : false,
+                                )
                             }
                         } else {
                             Spacer()
@@ -74,8 +81,10 @@ struct MonthView: View {
                 
                 Chevron(direction: .right)
                     .onTapGesture {
-                        // incredment month by 1
-                        selectedDate = viewModel.adjust(givenDate: selectedDate, months: 1)
+                        // incredment month by 1                        
+                        if let newSelectedDate = calendar.date(byAdding: .month, value: 1, to: selectedDate) {
+                            selectedDate = newSelectedDate
+                        }
                     }
                 
                 Spacer()

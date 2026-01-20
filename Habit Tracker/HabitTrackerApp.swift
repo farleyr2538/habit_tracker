@@ -13,12 +13,26 @@ struct HabitTrackerApp : App {
     
     @StateObject var viewModel = ViewModel()
     
+    let container : ModelContainer
+    
+    init() {
+        do {
+            container = try ModelContainer(
+                for: Habit.self,
+                migrationPlan: MigrationPlan.self
+            )
+        } catch {
+            fatalError("unable to generate container: \(error)")
+        }
+        
+    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
                 
         }
         .environmentObject(viewModel)
-        .modelContainer(for: Habit.self)
+        .modelContainer(container)
     }
 }

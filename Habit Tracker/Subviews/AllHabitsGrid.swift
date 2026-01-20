@@ -1,22 +1,26 @@
 //
-//  HorizontalGitHubView.swift
-//  Practice
+//  AllHabitsGrid.swift
+//  Habit Tracker
 //
-//  Created by Robert Farley on 18/12/2025.
+//  Created by Rob Farley on 15/01/2026.
 //
 
 import SwiftUI
+import SwiftData
 
-struct HorizontalGitHubView: View {
+struct AllHabitsGrid: View {
     
     @EnvironmentObject var viewModel : ViewModel
     
-    @State var habit : Habit
+    @Query var habits : [Habit]
+    
+    @State var opacities : [Double] = []
+    @Environment(\.modelContext) var context
+    
+    @State var infoSheetShowing : Bool = false
     
     @State var numberOfDays : Int = 52 * 7
     @State var numberOfRows = 7
-    
-    var width : Width
     
     @State var scrollPosition : Int?
     
@@ -27,11 +31,46 @@ struct HorizontalGitHubView: View {
         let selectedWeekdaysArray = Array(selectedWeekdays.enumerated())
         
         let gridRows : [GridItem] = Array(repeating: GridItem(.fixed(1), spacing: 10), count: numberOfRows) // number of rows permitted
-        
-        let endDate = viewModel.getEndOfCurrentWeek()
-        let startDate = calendar.date(byAdding: .day, value: (1 - numberOfDays), to: calendar.startOfDay(for: endDate))!
-                
+                        
         VStack {
+            
+            /*
+             
+             DEBUGGING
+            
+            // opacities debugging
+            Text("opacities length: " + String(opacities.count))
+            
+            if let firstOpacity = opacities.first {
+                Text("first opacity: " + String(firstOpacity))
+            }
+            
+            if let maxOpacity = opacities.max() {
+                Text("highest opacity: " + String(maxOpacity))
+            }
+            
+            // habits debugging
+            if let firstHabit = habits.first {
+                Text("first habit name: " + firstHabit.name)
+                Text("dateCreated: " + firstHabit.dateCreated.description)
+                let startFrom = firstHabit.startFrom
+                Text("startFrom: " + startFrom.description)
+                /*} else {
+                    Text("unable to unwrap startFrom")
+                }*/
+                ForEach(firstHabit.dates, id: \.self) { date in
+                    Text(String(date.description))
+                }
+                
+            } else {
+                Text("unable to get first habit")
+            }
+            
+            Text("number of habits: " + String(habits.count))
+            
+            */
+            
+            
             HStack {
                 
                 VStack {
@@ -51,27 +90,12 @@ struct HorizontalGitHubView: View {
                     
                     LazyHGrid(rows: gridRows) {
                         
-                        ForEach(0..<numberOfDays, id: \.self) { dayNumber in
-                            
-                            // for each day, create date, assess whether its in habit.dates
-                            // or, create (weeks * 7) dates, and iterate through them, checking if each is present in habit.dates
-                            
-                            // create date
-                            let date = calendar.date(byAdding: .day, value: dayNumber, to: startDate)!
-                            
-                            // check whether habit.dates contains date
-                            let isComplete = habit.dates.contains(date)
+                        ForEach(0..<opacities.count, id: \.self) { dayNumber in
                             
                             ZStack {
                                 RoundedRectangle(cornerRadius: 2.0)
-                                    .foregroundStyle(isComplete ? .green : .gray.opacity(0.15))
-                                
-                                /*
-                                 Text(date.description)
-                                 .foregroundStyle(.white)
-                                 .font(.custom("helvetica", size: 2.0))
-                                 */
-                                
+                                    .foregroundStyle(opacities[dayNumber] == 0 ? Color.gray.opacity(0.1) : Color.green.opacity(opacities[dayNumber]))
+
                             }
                             .frame(width: 10, height: 10)
                             //.padding(.vertical, -2)
@@ -91,9 +115,6 @@ struct HorizontalGitHubView: View {
                 .scrollPosition(id: $scrollPosition)
                 .onAppear {
                     scrollPosition = numberOfDays
-                    if width == .narrow {
-                        numberOfDays = (52 * 7 / 2) + 14
-                    }
                 }
             }
             
@@ -130,14 +151,6 @@ struct HorizontalGitHubView: View {
                         numberOfDays = (7*52)
                     }
                     
-                    let habitStartingDate = habit.startFrom
-                    let today = Date()
-                    let difference = calendar.dateComponents([.day], from: habitStartingDate, to: today)
-                    if let days = difference.day {
-                        Button("since start of habit") {
-                            numberOfDays = days
-                        }
-                    }
                 }
                 .buttonStyle(.bordered)
                 .padding(.vertical)
@@ -146,15 +159,34 @@ struct HorizontalGitHubView: View {
             
             
         }
-        
-        
+        .onAppear {
+            opacities = viewModel.createDayScores(habits: habits)
+        }
+        .toolbar {
+            ToolbarItem {
+                Button {
+                    infoSheetShowing = true
+                } label: {
+                    Image(systemName: "info.circle")
+                }
+            }
+        }
+        .sheet(isPresented: $infoSheetShowing) {
+            InfoSheet()
+        }
         
     }
 }
 
-#Preview {
-    let previewHabit : Habit = Habit.sampleData.first!
-    
-    HorizontalGitHubView(habit: previewHabit, width: .narrow)
+
+#Preview {    
+    AllHabitsGrid()
         .environmentObject(ViewModel())
+        .modelContainer(for: Habit.self, inMemory: true) { result in
+            if case .success(let container) = result {
+                Habit.sampleData.forEach { habit in
+                    container.mainContext.insert(habit)
+                }
+            }
+        }
 }

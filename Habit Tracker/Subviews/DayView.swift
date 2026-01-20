@@ -11,11 +11,11 @@ struct DayView: View {
     
     @EnvironmentObject var viewModel : ViewModel
     
+    @Bindable var habit : Habit
+    var date : Date
+    
     @State var pressEffect : Bool = false
     var completed : Bool
-    @Binding var dates : [Date]
-    
-    var date : Date
     
     var dimensions = 35.0
     
@@ -47,11 +47,32 @@ struct DayView: View {
                 pressEffect = true
             }
             
+            // create copies of required variables
+            var startingFrom = habit.startFrom
+            var dates = habit.dates
+            
             if !completed {
+                // add date to dates
                 dates.append(calendar.startOfDay(for: date))
+                
+                // if date is before startingDate, set startingDate to this date
+                if date < startingFrom {
+                    startingFrom = date
+                }
+                
             } else {
+                // remove date from dates
                 dates.removeAll { calendar.isDate($0, inSameDayAs: date) }
+                
+                // if this was the earliest date (ie. before dateCreated and before any other date), set startingDate to the next earliest date
+                
+                // create a new startingFrom
+                startingFrom = viewModel.calculateStartFrom(habit: habit)
             }
+            
+            // re-assign variables to habit
+            habit.dates = dates
+            habit.startFrom = startingFrom
             
             // disapply scale effect after delay
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
@@ -66,9 +87,16 @@ struct DayView: View {
 
 #Preview {
     DayView(
-        completed: true,
-        dates: .constant([Date()]),
-        date: Calendar.current.startOfDay(for: Date())
+        habit: Habit.sampleData.first!,
+        date: Calendar.current.startOfDay(for: Date()),
+        completed: true
     )
         .environmentObject(ViewModel())
+        .modelContainer(for: Habit.self, inMemory: true) { result in
+            if case .success(let container) = result {
+                Habit.sampleData.forEach { habit in
+                    container.mainContext.insert(habit)
+                }
+            }
+        }
 }
