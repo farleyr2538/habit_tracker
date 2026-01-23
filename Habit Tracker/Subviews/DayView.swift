@@ -17,25 +17,17 @@ struct DayView: View {
     @State var pressEffect : Bool = false
     var completed : Bool
     
-    var dimensions = 35.0
-    
     let impact = UIImpactFeedbackGenerator(style: .medium)
     
     var body: some View {
         
         let dayNumber = calendar.component(.day, from: date)
+        var color : Color = .green
         
         ZStack {
-            Rectangle()
-                .frame(width: dimensions, height: dimensions)
-                .aspectRatio(1, contentMode: .fit)
-                .cornerRadius(10)
+            DayBox(dayNumber: dayNumber)
                 .scaleEffect(pressEffect ? 0.4 : 1)
-                .foregroundStyle(completed ? .green : .black)
-
-            Text(String(dayNumber))
-                .foregroundStyle(.white)
-                .font(.system(size: 16))
+                .foregroundStyle(completed ? color : .black)
         }
         .onTapGesture {
             
@@ -81,6 +73,11 @@ struct DayView: View {
                 }
             }
             
+        }
+        .onAppear {
+            if let colorHash = habit.colorHash {
+                color = Color.init(hex: colorHash)
+            }
         }
     }
 }

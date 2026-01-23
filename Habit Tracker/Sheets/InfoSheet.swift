@@ -29,7 +29,7 @@ struct InfoSheet: View {
                 }
                 
                 Section("Your habits' start dates") {
-                    ForEach(habits) { habit in
+                    ForEach(habits, id: \.self) { habit in
                         HStack {
                             Text(habit.name)
                             Spacer()

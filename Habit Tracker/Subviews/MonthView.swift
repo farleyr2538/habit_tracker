@@ -11,36 +11,29 @@ import SwiftData
 struct MonthView: View {
     
     @EnvironmentObject var viewModel : ViewModel
-    // @Query var habits : [Habit]
     
-    @State var selectedDate : Date // a date to show the month around
     @Bindable var habit : Habit
+    @State var months : [Date] = []
+    @State var today : Date? = nil
     
     var body: some View {
         
-        let gridColumns = Array(repeating: GridItem(.fixed(40.0), spacing: 0), count: 7)
+        // let today = Date()
+        let sixMonthsAgo = calendar.startOfDay(
+            for: calendar.date(
+                byAdding: .month,
+                value: -12,
+                to: today ?? calendar.startOfDay(for: Date())
+            )!
+        )
         
-        let daysInMonth : Int = viewModel.daysInMonth(date: selectedDate)
-        let firstDay : Int = viewModel.firstDayOfMonth(date: selectedDate)
-        let totalDays = daysInMonth + firstDay // including initial buffers
-        
-        // get date info for display
-        let month = calendar.component(.month, from: selectedDate)
-        let year = calendar.component(.year, from: selectedDate)
-        let monthText = viewModel.monthName(from: calendar.component(.month, from: selectedDate))
-                
-        let daysOfWeek = ["Mon", "Tues", "Weds", "Thur", "Fri", "Sat", "Sun"]
-        
-        VStack(spacing: 20) {
-            
-            Text(monthText + " " + String(year))
-                .font(.headline)
-            
+        VStack(alignment: .center) {
+                                                
             HStack {
                 
-                Spacer()
-                
+                /*
                 Chevron(direction: .left)
+                
                     .onTapGesture {
                         // decrement month by one
                         if let newSelectedDate = calendar.date(byAdding: .month, value: -1, to: selectedDate) {
@@ -48,56 +41,52 @@ struct MonthView: View {
                         }
                         
                     }
+                 */
                 
-                LazyVGrid(columns: gridColumns, spacing: 4) {
+                ScrollView(.horizontal) {
                     
-                    ForEach(daysOfWeek, id: \.self) { day in
-                        Text(day)
-                            .font(.system(size: 10.0))
-                    }
-                    .padding(.bottom, 5)
-                    
-                    ForEach(0..<(totalDays), id: \.self) { index in
-                        if (index >= firstDay) {
-                            
-                            // create date
-                            let dayNumber = index - firstDay + 1
-                            let components = DateComponents.init(year: year, month: month, day: dayNumber)
-                            if let date = calendar.date(from: components) {
-                                // if date is in dates...
-                                let isInDates = habit.dates.contains(date)
-                                DayView(
-                                    habit: habit,
-                                    date: date,
-                                    completed: isInDates ? true : false,
-                                )
-                            }
-                        } else {
-                            Spacer()
+                    LazyHStack(spacing: 0) {
+                        
+                        ForEach(months, id:\.self) { month in
+                            SingleMonthView(habit: habit, selectedDate: month)
+                                .containerRelativeFrame(.horizontal)
+                                .id(month)
                         }
                     }
+                    .scrollTargetLayout()
                 }
-                .frame(width: 290)
+                .scrollTargetBehavior(.paging)
+                .scrollIndicators(.hidden)
+                .scrollPosition(id: $today)
+                //.frame(maxHeight: 400)
                 
+                /*
                 Chevron(direction: .right)
+                
                     .onTapGesture {
-                        // incredment month by 1                        
+                        // incredment month by 1
                         if let newSelectedDate = calendar.date(byAdding: .month, value: 1, to: selectedDate) {
                             selectedDate = newSelectedDate
                         }
                     }
-                
-                Spacer()
-                
+                */
             }
-            .padding(.bottom)
+        }
+        .onAppear {
+            
+            today = calendar.startOfDay(for: Date())
+            
+            for i in 0..<24 {
+                let date = calendar.date(byAdding: .month, value: i, to: sixMonthsAgo)!
+                months.append(date)
+            }
         }
     }
 }
 
 #Preview {
     MonthView(
-        selectedDate: Date(),
+        // selectedDate: Date(),
         habit: Habit(name: "Running", dates: [Date()])
     )
         .environmentObject(ViewModel())

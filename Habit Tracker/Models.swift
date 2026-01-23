@@ -35,7 +35,7 @@ enum SchemaV2 : VersionedSchema {
     static var models: [any PersistentModel.Type] { [Habit.self] }
     
     @Model
-    class Habit : Hashable {
+    class Habit {
         
         var name : String
         var dates : [Date]
@@ -110,8 +110,20 @@ enum MigrationPlan : SchemaMigrationPlan {
                 
                 habit.dateCreated = calendar.startOfDay(for: habit.dateCreated) // dateCreated is not optional, so has a value. dateCreated was at one point just the exact time the habit was made. instead, it should be the start of that day.
                 
-                if habit.startFrom == nil {
-                    habit.startFrom = habit.dateCreated // startFrom is an optional, and in most cases nil. Assign dateCreated to startFrom by default. this can be adapted later.
+                if habit.startFrom == nil { // startFrom is an optional, and in most cases nil. Assign dateCreated to startFrom by default. this can be adapted later.
+                    let dateCreated = habit.dateCreated
+                    
+                    if let earliestDate = habit.dates.min() {
+                        
+                        if earliestDate < dateCreated {
+                            habit.startFrom = earliestDate
+                        } else {
+                            habit.startFrom = dateCreated
+                        }
+                        
+                    } else {
+                        habit.startFrom = dateCreated
+                    }
                 }
             }
             

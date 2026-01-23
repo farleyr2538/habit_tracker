@@ -16,9 +16,7 @@ struct CreateHabitSheet: View {
     @State var newHabitError : Bool = false
     @FocusState private var textFieldFocused : Bool
     
-    let colors : [Color] = [.blue, .red, .orange, .yellow]
-    
-    @State var color : Color = .accentColor
+    @State var color : Color = .green
         
     @Environment(\.modelContext) private var context
     
@@ -26,52 +24,53 @@ struct CreateHabitSheet: View {
             
         NavigationStack {
             
-            ScrollView {
+            // ScrollView {
                 
-                VStack(alignment: .leading, spacing: 15) {
+            Form {
                     
-                    HStack(alignment: .firstTextBaseline) {
-                        
-                        Label("Habit name: ", systemImage: "person.fill")
-                            .labelStyle(.titleOnly)
-                        
-                        Spacer()
-                        
-                        TextField("Knitting", text: $newHabit.name)
-                            .textFieldStyle(.roundedBorder)
-                        //.background(Color.gray.opacity(0.2))
-                            .padding(.bottom)
-                            .focused($textFieldFocused)
-                            .multilineTextAlignment(.trailing)
-                            .textFieldStyle(.roundedBorder)
-                            .autocorrectionDisabled()
-                            .textContentType(.none)
-                            .toolbar {
-                                ToolbarItemGroup(placement: .keyboard) {
-                                    Spacer()
-                                    Button("Done") {
-                                        textFieldFocused = false
-                                    }
+                HStack(alignment: .firstTextBaseline) {
+                    
+                    Label("Habit name: ", systemImage: "person.fill")
+                        .labelStyle(.titleOnly)
+                    
+                    Spacer()
+                    
+                    TextField("Knitting", text: $newHabit.name)
+                        .textFieldStyle(.roundedBorder)
+                    //.background(Color.gray.opacity(0.2))
+                        .focused($textFieldFocused)
+                        .multilineTextAlignment(.trailing)
+                        .textFieldStyle(.roundedBorder)
+                        .autocorrectionDisabled()
+                        .textContentType(.none)
+                        .toolbar {
+                            ToolbarItemGroup(placement: .keyboard) {
+                                Spacer()
+                                Button("Done") {
+                                    textFieldFocused = false
                                 }
                             }
-                    }
-                    .padding(.top, 20)
-                    // .frame(width: 300)
-                    
-                    // color picker
-                    // ColorPicker("Colour", selection: $color)
-                    
-                    Text("Select any recent dates you have completed this habit")
-                    .foregroundStyle(.gray)
-                    
-                    MonthView(selectedDate: Date(), habit: newHabit)
-                    
+                        }
+                }
+                
+                // color picker
+                HStack {
+                    Spacer()
+                    CustomColorPicker(selectedColor: $color)
                     Spacer()
                 }
                 
-                .padding(.horizontal, 50)
+                VStack {
+                    Text("Select any recent dates you have completed this habit")
+                        .foregroundStyle(.gray)
+                    
+                    MonthView(habit: newHabit)
+                        .frame(height: 300)
+                }
+                .padding(.vertical)
+                                    
             }
-            .scrollContentBackground(.hidden)
+
             .alert("Please add habit name", isPresented: $newHabitError) {
                 Button("OK") {
                     newHabitError.toggle()

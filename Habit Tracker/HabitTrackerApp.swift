@@ -13,6 +13,8 @@ struct HabitTrackerApp : App {
     
     @StateObject var viewModel = ViewModel()
     
+    @State private var subscriptionManager = SubscriptionManager()
+    
     let container : ModelContainer
     
     init() {
@@ -28,9 +30,10 @@ struct HabitTrackerApp : App {
     }
     
     var body: some Scene {
+        
         WindowGroup {
             ContentView()
-                
+                .environment(subscriptionManager)
         }
         .environmentObject(viewModel)
         .modelContainer(container)

@@ -34,7 +34,7 @@ struct HabitView: View {
                             .font(.subheadline)
                             .foregroundStyle(.gray)
                     }
-                    .padding(.leading, 5)
+                    .padding(.leading, 10)
                     .padding(.top, 5)
                     
                     Spacer()
@@ -42,7 +42,8 @@ struct HabitView: View {
                 
                 HorizontalGitHubView(habit: habit, width: .wide)
                 
-                MonthView(selectedDate: Date(), habit: habit)
+                MonthView(habit: habit)
+                    .frame(height: 300)
                 
                 HStack(spacing: 20) {
                     

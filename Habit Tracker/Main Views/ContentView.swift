@@ -12,6 +12,8 @@ struct ContentView: View {
     
     @EnvironmentObject var viewModel : ViewModel
     
+    @Environment(SubscriptionManager.self) private var subscriptionManager
+    
     @State private var coordinator = NavigationCoordinator()
     
     @State var habitEditorShowing : Bool = false
@@ -31,14 +33,6 @@ struct ContentView: View {
                         .navigationDestination(for: Habit.self) { habit in
                             HabitView(habit: habit)
                         }
-                        .onAppear {
-                            for habit in habits {
-                                habit.startFrom = viewModel.calculateStartFrom(habit: habit)
-                                
-                                try? context.save() 
-                            }
-                        }
-                        
                 } else {
                     
                     VStack {
@@ -108,6 +102,8 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
+        .environment(SubscriptionManager())
+        .environment(NavigationCoordinator())
         .environmentObject(ViewModel())
         .modelContainer(for: Habit.self, inMemory: true) { result in
             if case .success(let container) = result {

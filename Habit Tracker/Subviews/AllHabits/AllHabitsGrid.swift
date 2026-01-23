@@ -34,42 +34,44 @@ struct AllHabitsGrid: View {
                         
         VStack {
             
+            
             /*
-             
-             DEBUGGING
+            // DEBUGGING
             
-            // opacities debugging
-            Text("opacities length: " + String(opacities.count))
-            
-            if let firstOpacity = opacities.first {
-                Text("first opacity: " + String(firstOpacity))
-            }
-            
-            if let maxOpacity = opacities.max() {
-                Text("highest opacity: " + String(maxOpacity))
-            }
-            
-            // habits debugging
-            if let firstHabit = habits.first {
-                Text("first habit name: " + firstHabit.name)
-                Text("dateCreated: " + firstHabit.dateCreated.description)
-                let startFrom = firstHabit.startFrom
-                Text("startFrom: " + startFrom.description)
-                /*} else {
-                    Text("unable to unwrap startFrom")
-                }*/
-                ForEach(firstHabit.dates, id: \.self) { date in
-                    Text(String(date.description))
+            VStack {
+                // opacities debugging
+                Text("number of habits: " + String(habits.count))
+                
+                Text("opacities length: " + String(opacities.count))
+                
+                if let firstOpacity = opacities.first {
+                    Text("first opacity: " + String(firstOpacity))
                 }
                 
-            } else {
-                Text("unable to get first habit")
+                if let maxOpacity = opacities.max() {
+                    Text("highest opacity: " + String(maxOpacity))
+                }
+                
+                // habits debugging
+                HStack {
+                    ForEach(habits, id: \.persistentModelID) { firstHabit in
+                        VStack {
+                            Text("habit name: " + firstHabit.name)
+                            Text("dateCreated: " + firstHabit.dateCreated.formatted(date: .abbreviated, time: .shortened))
+                            let startFrom = firstHabit.startFrom
+                            Text("startFrom: " + startFrom.formatted(date: .abbreviated, time: .shortened))
+                            
+                            ForEach(firstHabit.dates, id: \.self) { date in
+                                Text(String(date.formatted(date: .abbreviated, time: .shortened)))
+                            }
+                        }
+                    }
+                }
+                .padding(.top)
+                
             }
-            
-            Text("number of habits: " + String(habits.count))
-            
-            */
-            
+            .font(.system(size: 12.0))
+             */
             
             HStack {
                 
@@ -93,6 +95,10 @@ struct AllHabitsGrid: View {
                         ForEach(0..<opacities.count, id: \.self) { dayNumber in
                             
                             ZStack {
+                                
+                                // Text(String(opacities[dayNumber]))
+                                    // .font(.system(size: 4.0))
+                                
                                 RoundedRectangle(cornerRadius: 2.0)
                                     .foregroundStyle(opacities[dayNumber] == 0 ? Color.gray.opacity(0.1) : Color.green.opacity(opacities[dayNumber]))
 
@@ -119,7 +125,7 @@ struct AllHabitsGrid: View {
             }
             
             // add day number picker, eg. last week, last month, last 3, 6, 12, 24 months
-            
+            /*
             ScrollView(.horizontal) {
                 HStack {
                     if numberOfDays != (52 * 7) {
@@ -156,7 +162,7 @@ struct AllHabitsGrid: View {
                 .padding(.vertical)
             }
             .scrollIndicators(.hidden)
-            
+            */
             
         }
         .onAppear {

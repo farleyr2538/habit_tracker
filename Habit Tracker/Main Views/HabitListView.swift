@@ -11,12 +11,14 @@ import SwiftData
 struct HabitListView: View {
     
     @Environment(NavigationCoordinator.self) private var coordinator
+    @Environment(SubscriptionManager.self) private var subscriptionManager
     
     // SwiftData
     @Query(sort: [SortDescriptor(\Habit.dateCreated, order: .forward)]) private var habits : [Habit]
     @Environment(\.modelContext) private var context
     
     @State var newHabitSheetShowing : Bool = false
+    @State var paywallSheetShowing : Bool = false
         
     func deleteHabit(at offsets: IndexSet) {
         for index in offsets {
@@ -64,26 +66,49 @@ struct HabitListView: View {
                 }
                 .padding(.bottom, 10)
                 
-                NavigationLink("See all habits") {
-                    AllHabitsGrid()
-                }
+                
             }
+            
+            NavigationLink {
+                // VerticalAllHabitsGrid()
+                
+                 if subscriptionManager.isPremium {
+                    VerticalAllHabitsGrid()
+                } else {
+                    PaywallSheet()
+                }
+                
+            } label: {
+                Text("See All Habits")
+                    .padding(10)
+            }
+            .buttonStyle(.bordered)
+            .padding(.vertical)
         }
         .safeAreaInset(edge: .bottom, alignment: .trailing) {
             Button {
                 newHabitSheetShowing = true
             } label: {
-                Text("Add new habit")
-                    .padding(10)
+                ZStack {
+                    Circle()
+                        .foregroundStyle(.accent)
+                        .frame(width: 50, height: 50)
+                    Image(systemName: "plus")
+                        .scaleEffect(1.2)
+                        .foregroundStyle(Color.white)
+                        .padding(10)
+                }
             }
-            .padding(.trailing, 30)
+            .padding(.trailing, 40)
             .padding(.bottom, 30)
-            .buttonStyle(.borderedProminent)
-            .shadow(radius: 10, x: 5, y: 5)
+            .shadow(radius: 15, x: 0, y: 5)
         }
         .padding(.top, 1)
         .sheet(isPresented: $newHabitSheetShowing) {
             CreateHabitSheet(habitEditorShowing: $newHabitSheetShowing)
+        }
+        .sheet(isPresented: $paywallSheetShowing) {
+            PaywallSheet()
         }
         .navigationTitle("My Habits")
         .navigationBarTitleDisplayMode(.inline)
@@ -103,4 +128,5 @@ struct HabitListView: View {
         }
         .environmentObject(ViewModel())
         .environment(NavigationCoordinator())
+        .environment(SubscriptionManager())
 }
