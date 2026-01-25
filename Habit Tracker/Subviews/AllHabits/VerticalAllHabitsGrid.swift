@@ -19,61 +19,24 @@ struct VerticalAllHabitsGrid: View {
     
     @State var infoSheetShowing : Bool = false
     
-    @State var numberOfDays : Int = 52 * 7
+    @State var daysToShow : Int = 52 * 7
     @State var numberOfCols : Int = 7
     
     @State var scrollPosition : Int?
     
-    let boxDimensions : Double = 15.0
+    @State var boxDimensions : Double = 15.0
+    var textSize = 10.0
+    
+    let allWeekdays = ["Mon", "Tues", "Weds", "Thurs", "Fri", "Sat", "Sun"]
+    let selectedWeekdays = ["Mon", "", "Weds", "", "Fri", "", "Sun"]
     
     var body: some View {
         
-        let allWeekdays = ["Mon", "Tues", "Weds", "Thurs", "Fri", "Sat", "Sun"]
-        let selectedWeekdays = ["Mon", "", "Weds", "", "Fri", "", "Sun"]
         let selectedWeekdaysArray = Array(selectedWeekdays.enumerated())
         
         let gridCols : [GridItem] = Array(repeating: GridItem(.fixed(boxDimensions), spacing: 5.0), count: numberOfCols) // number of rows permitted
                         
         VStack {
-            
-            /*
-            
-            // DEBUGGING
-            
-            VStack {
-                // opacities debugging
-                Text("number of habits: " + String(habits.count))
-                
-                Text("opacities length: " + String(opacities.count))
-                
-                if let firstOpacity = opacities.first {
-                    Text("first opacity: " + String(firstOpacity))
-                }
-                
-                if let maxOpacity = opacities.max() {
-                    Text("highest opacity: " + String(maxOpacity))
-                }
-                
-                // habits debugging
-                HStack {
-                    ForEach(habits, id: \.persistentModelID) { firstHabit in
-                        VStack {
-                            Text("habit name: " + firstHabit.name)
-                            Text("dateCreated: " + firstHabit.dateCreated.formatted(date: .abbreviated, time: .shortened))
-                            let startFrom = firstHabit.startFrom
-                            Text("startFrom: " + startFrom.formatted(date: .abbreviated, time: .shortened))
-                            
-                            ForEach(firstHabit.dates, id: \.self) { date in
-                                Text(String(date.formatted(date: .abbreviated, time: .shortened)))
-                            }
-                        }
-                    }
-                }
-                .padding(.top)
-                
-            }
-            .font(.system(size: 12.0))
-             */
             
             VStack {
                 
@@ -87,7 +50,7 @@ struct VerticalAllHabitsGrid: View {
                         
                     }
                 }
-                .font(.system(size: 10.0))
+                .font(.system(size: textSize))
                 
                 ScrollView([.vertical]) {
                     
@@ -109,46 +72,49 @@ struct VerticalAllHabitsGrid: View {
                     
                     .scrollTargetLayout()
                 }
-                .scrollIndicators(.visible)
+                .scrollIndicators(.hidden)
                 .defaultScrollAnchor(.bottom)
                 .scrollBounceBehavior(.basedOnSize)
                 .scrollPosition(id: $scrollPosition)
                 .onAppear {
-                    scrollPosition = numberOfDays
+                    scrollPosition = opacities.count
                 }
+                .padding(.bottom, 50)
+                
             }
             
-            // add day number picker, eg. last week, last month, last 3, 6, 12, 24 months
             /*
+            // add day number picker, eg. last week, last month, last 3, 6, 12, 24 months
+            
             ScrollView(.horizontal) {
                 HStack {
-                    if numberOfDays != (52 * 7) {
+                    if daysToShow != (52 * 7) {
                         Button {
-                            numberOfDays = (52 * 7)
+                            daysToShow = (52 * 7)
                         } label: {
                             Image(systemName: "arrow.counterclockwise")
                         }
                         .buttonStyle(.borderedProminent)
                     }
                     Button("day") {
-                        numberOfDays = 1
+                        daysToShow = 1
                     }
                     Button("week") {
-                        numberOfDays = 7
+                        daysToShow = 7
                     }
                     Button("month") {
-                        numberOfDays = (7*4)
+                        daysToShow = (7*4)
                     }
                     Button("quarter") {
-                        numberOfDays = (7*13)
+                        daysToShow = (7*13)
                     }
                     /*
                     Button("100 days") {
-                        numberOfDays = 100
+                        daysToShow = 100
                     }
                      */
                     Button("year") {
-                        numberOfDays = (7*52)
+                        daysToShow = (7*52)
                     }
                     
                 }
@@ -156,14 +122,25 @@ struct VerticalAllHabitsGrid: View {
                 .padding(.vertical)
             }
             .scrollIndicators(.hidden)
-            */
+             
+             */
+            
             
         }
         .onAppear {
             opacities = viewModel.createDayScores(habits: habits)
         }
         .toolbar {
-            ToolbarItem {
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                Button {
+                    if boxDimensions == 15.0 {
+                        boxDimensions = 30.0
+                    } else {
+                        boxDimensions = 15.0
+                    }
+                } label: {
+                    Image(systemName: "plus.magnifyingglass")
+                }
                 Button {
                     infoSheetShowing = true
                 } label: {
@@ -180,13 +157,15 @@ struct VerticalAllHabitsGrid: View {
 }
 
 #Preview {
-    VerticalAllHabitsGrid()
-        .environmentObject(ViewModel())
-        .modelContainer(for: Habit.self, inMemory: true) { result in
+    NavigationStack {
+        VerticalAllHabitsGrid()
+            .environmentObject(ViewModel())
+            .modelContainer(for: Habit.self, inMemory: true) { result in
                 if case .success(let container) = result {
                     Habit.sampleData.forEach { habit in
                         container.mainContext.insert(habit)
                     }
+                }
             }
-        }
+    }
 }

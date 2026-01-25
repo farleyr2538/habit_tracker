@@ -42,7 +42,7 @@ struct HabitView: View {
                 
                 HorizontalGitHubView(habit: habit, width: .wide)
                 
-                MonthView(habit: habit)
+                MultiMonthView(habit: habit, color: .constant(nil))
                     .frame(height: 300)
                 
                 HStack(spacing: 20) {

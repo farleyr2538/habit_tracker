@@ -18,11 +18,13 @@ struct SingleMonthView: View {
     
     let daysOfWeek = ["Mon", "Tues", "Weds", "Thur", "Fri", "Sat", "Sun"]
     
+    @Binding var color : Color?
+    
     var body: some View {
         
         let daysInMonth : Int = viewModel.daysInMonth(date: selectedDate)
         let firstDay : Int = viewModel.firstDayOfMonth(date: selectedDate)
-        let totalDays = daysInMonth + firstDay // including initial buffers
+        let totalDays = daysInMonth + firstDay // including initial buffer days
         
         let month = calendar.component(.month, from: selectedDate)
         let year = calendar.component(.year, from: selectedDate)
@@ -45,16 +47,19 @@ struct SingleMonthView: View {
                 ForEach(0..<(totalDays), id: \.self) { index in
                     
                     if (index >= firstDay) {
+                        
                         // create date
                         let dayNumber = index - firstDay + 1
                         let components = DateComponents.init(year: year, month: month, day: dayNumber)
                         if let date = calendar.date(from: components) {
+                            
                             // if date is in dates...
                             let isInDates = habit.dates.contains(date)
                             DayView(
                                 habit: habit,
                                 date: date,
                                 completed: isInDates ? true : false,
+                                color: $color
                             )
                         }
                     } else {
@@ -70,7 +75,8 @@ struct SingleMonthView: View {
 #Preview {
     SingleMonthView(
         habit: Habit.sampleData.first!,
-        selectedDate: Date()
+        selectedDate: Date(),
+        color: .constant(nil)
     )
     .environmentObject(ViewModel())
     .modelContainer(for: Habit.self, inMemory: true) { result in

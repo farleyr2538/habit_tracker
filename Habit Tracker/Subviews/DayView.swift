@@ -19,15 +19,17 @@ struct DayView: View {
     
     let impact = UIImpactFeedbackGenerator(style: .medium)
     
+    @Binding var color : Color?
+    @State var highlightColor : Color = .green
+    
     var body: some View {
         
         let dayNumber = calendar.component(.day, from: date)
-        var color : Color = .green
         
         ZStack {
             DayBox(dayNumber: dayNumber)
                 .scaleEffect(pressEffect ? 0.4 : 1)
-                .foregroundStyle(completed ? color : .black)
+                .foregroundStyle(completed ? color ?? Color.init(hex: habit.colorHash ?? "34C759") : .black)
         }
         .onTapGesture {
             
@@ -75,10 +77,33 @@ struct DayView: View {
             
         }
         .onAppear {
-            if let colorHash = habit.colorHash {
-                color = Color.init(hex: colorHash)
+            
+            print("color binding received by dayView: \(String(describing: color))")
+            
+            // decide highlight color
+            // highlightColor = color ?? Color.init(hex: habit.colorHash ?? "34C759")
+            
+            // debugging
+            print("dayView - color decided: \(String(describing: highlightColor))")
+            
+            /*
+            // if a color has been passed in outside of the habit, that is first priority
+            if color != nil {
+                highlightColor = color!
+                
+            // second priority is whether there is a color assigned within the habit.
+            } else if habit.colorHash != nil {
+                // if so, unwrap, convert, and assign
+                highlightColor = Color.init(hex: habit.colorHash!)
+                
+            // else, assign color to .green
+            } else {
+                highlightColor = .green
             }
+             */
         }
+            
+
     }
 }
 
@@ -86,7 +111,8 @@ struct DayView: View {
     DayView(
         habit: Habit.sampleData.first!,
         date: Calendar.current.startOfDay(for: Date()),
-        completed: true
+        completed: true,
+        color: .constant(.yellow)
     )
         .environmentObject(ViewModel())
         .modelContainer(for: Habit.self, inMemory: true) { result in

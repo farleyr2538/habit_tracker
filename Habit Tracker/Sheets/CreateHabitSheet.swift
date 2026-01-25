@@ -10,15 +10,14 @@ import SwiftUI
 struct CreateHabitSheet: View {
     
     @EnvironmentObject var viewModel : ViewModel
+    @Environment(\.modelContext) private var context
     
     @State var newHabit : Habit = Habit(name: "", dates: [])
     @Binding var habitEditorShowing : Bool
     @State var newHabitError : Bool = false
     @FocusState private var textFieldFocused : Bool
     
-    @State var color : Color = .green
-        
-    @Environment(\.modelContext) private var context
+    @State var color : Color? = .green
     
     var body: some View {
             
@@ -52,11 +51,17 @@ struct CreateHabitSheet: View {
                             }
                         }
                 }
-                
+                                
                 // color picker
                 HStack {
                     Spacer()
-                    CustomColorPicker(selectedColor: $color)
+                    
+                    CustomColorPicker(selectedColor: Binding(
+                        get: { color ?? .green },
+                        set: { color = $0 }
+                        )
+                    )
+                    
                     Spacer()
                 }
                 
@@ -64,7 +69,7 @@ struct CreateHabitSheet: View {
                     Text("Select any recent dates you have completed this habit")
                         .foregroundStyle(.gray)
                     
-                    MonthView(habit: newHabit)
+                    MultiMonthView(habit: newHabit, color: $color)
                         .frame(height: 300)
                 }
                 .padding(.vertical)
@@ -86,13 +91,25 @@ struct CreateHabitSheet: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button {
+                        
+                        // check for empty habit name
                         if newHabit.name.isEmpty {
                             newHabitError.toggle()
                         } else {
-                            // save habit
-                            let habitToInsert = Habit(name: newHabit.name, dates: newHabit.dates)
                             
-                            // convert color to color hash/hex and assign it to habit
+                            // create habit instance
+                            let habitToInsert = Habit(
+                                name: newHabit.name,
+                                dates: newHabit.dates
+                            )
+                            
+                            // try to convert color to color hash/hex...
+                            if let hex = Color(color ?? .green).toHex() {
+                                // ... and assign it to habit
+                                habitToInsert.colorHash = hex
+                            } else {
+                                print("unable to convert color \(color != nil ? color!.description : Color.green.description) to hex")
+                            }
                             
                             // add to context & save
                             context.insert(habitToInsert)
@@ -102,7 +119,7 @@ struct CreateHabitSheet: View {
                                 print("failed to save habit: \(habitToInsert.name)")
                             }
                             
-                            // reset 'newHabit'
+                            // reset 'newHabit' variable
                             newHabit.name = ""
                             newHabit.dates = []
                             

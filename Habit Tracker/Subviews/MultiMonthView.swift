@@ -8,13 +8,15 @@
 import SwiftUI
 import SwiftData
 
-struct MonthView: View {
+struct MultiMonthView: View {
     
     @EnvironmentObject var viewModel : ViewModel
     
     @Bindable var habit : Habit
     @State var months : [Date] = []
     @State var today : Date? = nil
+    
+    @Binding var color : Color?
     
     var body: some View {
         
@@ -48,7 +50,11 @@ struct MonthView: View {
                     LazyHStack(spacing: 0) {
                         
                         ForEach(months, id:\.self) { month in
-                            SingleMonthView(habit: habit, selectedDate: month)
+                            SingleMonthView(
+                                habit: habit,
+                                selectedDate: month,
+                                color: $color
+                            )
                                 .containerRelativeFrame(.horizontal)
                                 .id(month)
                         }
@@ -80,14 +86,16 @@ struct MonthView: View {
                 let date = calendar.date(byAdding: .month, value: i, to: sixMonthsAgo)!
                 months.append(date)
             }
+        
         }
     }
 }
 
 #Preview {
-    MonthView(
+    MultiMonthView(
         // selectedDate: Date(),
-        habit: Habit(name: "Running", dates: [Date()])
+        habit: Habit(name: "Running", dates: [Date()]),
+        color: .constant(nil)
     )
         .environmentObject(ViewModel())
         .modelContainer(for: Habit.self, inMemory: true)

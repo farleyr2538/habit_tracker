@@ -24,7 +24,7 @@ struct InfoSheet: View {
                 Section {
                     Text("About the All-Habits view")
                         .font(Font.title)
-                    Text("Habits are only judged going back to their starting date.\n\nThis is whichever is earlier between the date they were created or the earliest date the habit was completed on.")
+                    Text("Habits are only judged going back to their starting date.\n\nThis is whichever is earlier between:\n\n - the date the habit was created, or \n - the earliest date the habit was completed on.")
                     
                 }
                 
@@ -55,13 +55,18 @@ struct InfoSheet: View {
 }
 
 #Preview {
-    InfoSheet()
-        .modelContainer(for: Habit.self, inMemory: true) { result in
-            if case .success(let container) = result {
-                Habit.sampleData.forEach { habit in
-                    container.mainContext.insert(habit)
-                }
-            }
-        }
+    
+    let container = try! ModelContainer(
+        for: Habit.self,
+        configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+    )
+    
+    // Insert sample data once
+    Habit.sampleData.forEach { habit in
+        container.mainContext.insert(habit)
+    }
+    
+    return InfoSheet()
+        .modelContainer(container)
         .environmentObject(ViewModel())
 }

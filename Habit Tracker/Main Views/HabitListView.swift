@@ -70,13 +70,15 @@ struct HabitListView: View {
             }
             
             NavigationLink {
-                // VerticalAllHabitsGrid()
+                VerticalAllHabitsGrid()
                 
+                /*
                  if subscriptionManager.isPremium {
                     VerticalAllHabitsGrid()
                 } else {
                     PaywallSheet()
                 }
+                 */
                 
             } label: {
                 Text("See All Habits")
@@ -118,15 +120,17 @@ struct HabitListView: View {
 }
 
 #Preview {
-    HabitListView()
-        .modelContainer(for: Habit.self, inMemory: true) { result in
-            if case .success(let container) = result {
-                Habit.sampleData.forEach { habit in
-                    container.mainContext.insert(habit)
+    NavigationStack {
+        HabitListView()
+            .modelContainer(for: Habit.self, inMemory: true) { result in
+                if case .success(let container) = result {
+                    Habit.sampleData.forEach { habit in
+                        container.mainContext.insert(habit)
+                    }
                 }
             }
-        }
-        .environmentObject(ViewModel())
-        .environment(NavigationCoordinator())
-        .environment(SubscriptionManager())
+    }
+    .environmentObject(ViewModel())
+    .environment(NavigationCoordinator())
+    .environment(SubscriptionManager())
 }

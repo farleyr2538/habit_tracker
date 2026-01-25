@@ -11,13 +11,13 @@ struct CustomColorPicker: View {
     
     @Binding var selectedColor : Color
     var todaysDate = calendar.component(.day, from: Date())
-    let colors : [Color] = [.green, .mint, .teal, .blue, .indigo,  .yellow, .orange, .red, .pink, .purple, .accent, .brown, ]
+    let colors : [Color] = [.green, .mint, .teal, .blue, .indigo, .purple, .pink, .red, .brown, .accent, .orange,  .yellow]
     
     var body: some View {
         
         VStack(alignment: .center) {
             HStack {
-                Text("Selected color: ")
+                Text("Color:")
                 
                 Spacer()
                 
@@ -43,7 +43,7 @@ struct CustomColorPicker: View {
                     
                 }
             }
-            .padding(.vertical, 20)
+            .padding(.vertical, 10)
         }
         
         
