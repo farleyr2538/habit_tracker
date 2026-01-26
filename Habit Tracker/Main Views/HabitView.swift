@@ -14,14 +14,14 @@ struct HabitView: View {
     
     @Bindable var habit : Habit
     
-    @State private var deleteAlertShowing : Bool = false
-    @State private var editAlertShowing : Bool = false
+    @State private var editSheetShowing : Bool = false
     
-    @State private var newName : String = ""
-    
+    @State private var hasJustDeleted : Bool = false
+        
     var body: some View {
         
         VStack {
+            
             VStack(spacing: 30) {
                 
                 HStack {
@@ -43,29 +43,7 @@ struct HabitView: View {
                 HorizontalGitHubView(habit: habit, width: .wide)
                 
                 MultiMonthView(habit: habit, color: .constant(nil))
-                    .frame(height: 300)
-                
-                HStack(spacing: 20) {
-                    
-                    Button {
-                        editAlertShowing = true
-                    } label: {
-                        Text("Rename Habit")
-                            .padding(5)
-                    }
-                    .buttonStyle(.bordered)
-                    
-                    Button(role: .destructive) {
-                        
-                        deleteAlertShowing = true
-                        
-                    } label: {
-                        Text("Delete Habit")
-                            .padding(5)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    
-                }
+                    .frame(height: 290)
                 
                 
             }
@@ -87,41 +65,29 @@ struct HabitView: View {
         .frame(maxWidth: .infinity)
         .background(Color.background)
         
-        .alert("Delete Habit?", isPresented: $deleteAlertShowing) {
-            Button("Delete", role: .destructive) {
-                // navigate back out of HabitView
-                coordinator.path.removeLast()
-                
-                // delete habit
-                context.delete(habit)
-                
-                // save
-                try? context.save()
+        .toolbar {
+            ToolbarItem {
+                Button {
+                    editSheetShowing = true
+                } label: {
+                    Image(systemName: "slider.horizontal.3")
+                }
             }
-            Button("Cancel", role: .cancel) {}
         }
-        .alert("Rename Habit", isPresented: $editAlertShowing) {
-            TextField("New Name", text: $newName)
-            Button("Cancel", role: .cancel) {}
-            Button("Confirm") {
-                
-                habit.name = newName
-                newName = ""
-                
-                try? context.save()
-            }
-            .disabled(newName.isEmpty)
-        } message: {
-            Text("Please enter a new name")
+        
+        .sheet(isPresented: $editSheetShowing) {
+            EditHabitSheet(habit: habit, hasJustDeleted: $hasJustDeleted)
         }
     }
 }
 
 #Preview {
-    HabitView(
-        habit: Habit.sampleData.first!
-    )
-    .environmentObject(ViewModel())
-    .modelContainer(for: Habit.self)
-    .environment(NavigationCoordinator())
+    NavigationStack {
+        HabitView(
+            habit: Habit.sampleData.first!
+        )
+        .environmentObject(ViewModel())
+        .modelContainer(for: Habit.self)
+        .environment(NavigationCoordinator())
+    }
 }

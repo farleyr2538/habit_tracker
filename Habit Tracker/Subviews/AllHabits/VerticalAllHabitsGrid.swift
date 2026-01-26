@@ -52,6 +52,7 @@ struct VerticalAllHabitsGrid: View {
                 }
                 .font(.system(size: textSize))
                 
+                
                 ScrollView([.vertical]) {
                     
                     LazyVGrid(columns: gridCols) {
@@ -69,17 +70,13 @@ struct VerticalAllHabitsGrid: View {
                         }
                         
                     }
-                    
                     .scrollTargetLayout()
                 }
                 .scrollIndicators(.hidden)
                 .defaultScrollAnchor(.bottom)
                 .scrollBounceBehavior(.basedOnSize)
-                .scrollPosition(id: $scrollPosition)
-                .onAppear {
-                    scrollPosition = opacities.count
-                }
-                .padding(.bottom, 50)
+                .scrollPosition(id: $scrollPosition, anchor: .bottom)
+                //.padding(.bottom, 50)
                 
             }
             

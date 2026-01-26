@@ -15,6 +15,7 @@ struct CreateHabitSheet: View {
     @State var newHabit : Habit = Habit(name: "", dates: [])
     @Binding var habitEditorShowing : Bool
     @State var newHabitError : Bool = false
+    
     @FocusState private var textFieldFocused : Bool
     
     @State var color : Color? = .green

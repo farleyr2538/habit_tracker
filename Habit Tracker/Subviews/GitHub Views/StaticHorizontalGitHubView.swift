@@ -26,6 +26,14 @@ struct StaticHorizontalGitHubView: View {
         let endDate = viewModel.getEndOfCurrentWeek()
         let startDate = calendar.date(byAdding: .day, value: (1 - numberOfDays), to: calendar.startOfDay(for: endDate))!
         
+        let color : Color = {
+            if let colorHash = habit.colorHash {
+                return Color(hex: colorHash)
+            } else {
+                return Color.green
+            }
+        }()
+        
         LazyHGrid(rows: gridRows) {
             
             ForEach(allWeekdays, id: \.self) { day in
@@ -47,7 +55,7 @@ struct StaticHorizontalGitHubView: View {
                 
                 ZStack {
                     RoundedRectangle(cornerRadius: 2.0)
-                        .foregroundStyle(isComplete ? .green : .gray.opacity(0.15))
+                        .foregroundStyle(isComplete ? color : .gray.opacity(0.15))
                     
                 }
                 .frame(width: 10, height: 10)

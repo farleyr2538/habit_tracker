@@ -10,6 +10,7 @@ import SwiftUI
 struct CustomColorPicker: View {
     
     @Binding var selectedColor : Color
+    
     var todaysDate = calendar.component(.day, from: Date())
     let colors : [Color] = [.green, .mint, .teal, .blue, .indigo, .purple, .pink, .red, .brown, .accent, .orange,  .yellow]
     

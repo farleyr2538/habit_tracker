@@ -76,34 +76,6 @@ struct DayView: View {
             }
             
         }
-        .onAppear {
-            
-            print("color binding received by dayView: \(String(describing: color))")
-            
-            // decide highlight color
-            // highlightColor = color ?? Color.init(hex: habit.colorHash ?? "34C759")
-            
-            // debugging
-            print("dayView - color decided: \(String(describing: highlightColor))")
-            
-            /*
-            // if a color has been passed in outside of the habit, that is first priority
-            if color != nil {
-                highlightColor = color!
-                
-            // second priority is whether there is a color assigned within the habit.
-            } else if habit.colorHash != nil {
-                // if so, unwrap, convert, and assign
-                highlightColor = Color.init(hex: habit.colorHash!)
-                
-            // else, assign color to .green
-            } else {
-                highlightColor = .green
-            }
-             */
-        }
-            
-
     }
 }
 

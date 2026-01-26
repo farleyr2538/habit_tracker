@@ -13,14 +13,27 @@ struct PaywallSheet: View {
     
     var body: some View {
         
-        Button("Pay monthly") {
+        VStack(spacing: 30) {
+            Text("This is a Premium feature")
             
-            Task {
-                try await subscriptionManager.purchase(productID: ProductID.premiumMonthly)
+            Text("Upgrade now to access it")
+            
+            HStack(spacing: 40) {
+                Button("£1.99 per month") {
+                    Task {
+                        try await subscriptionManager.purchase(productID: ProductID.premiumMonthly)
+                    }
+                    
+                }
+                
+                Button("£99 per year") {
+                    Task {
+                        try await subscriptionManager.purchase(productID: ProductID.premiumAnnual)
+                    }
+                }
             }
-            
+            .buttonStyle(.borderedProminent)
         }
-        
     }
     
 }

@@ -133,9 +133,7 @@ class ViewModel : ObservableObject {
     
     // function to create an array of "opacities", reflecting what proportion of habits (that had started on this day) were completed. eg. 1.0 = all habits completed. 0.33 = 1/3 habits completed.
     func createDayScores(habits: [Habit]) -> [Double] {
-        
-        print("running createDayScores...")
-        
+                
         // let today = calendar.startOfDay(for: Date())
         let endOfThisWeek = getEndOfCurrentWeek()
         
@@ -148,8 +146,6 @@ class ViewModel : ObservableObject {
             // create date by subtracting x from today
             if let date = calendar.date(byAdding: .day, value: -x, to: endOfThisWeek) {
                 
-                print("\nNEW DATE: \(date.formatted(date: .abbreviated, time: .omitted))")
-
                 var possibleHabits : Double = 0
                 var completedHabits : Double = 0
                 
@@ -159,15 +155,10 @@ class ViewModel : ObservableObject {
                     if date >= startingDate { // if the date we are assessing is after the habit began, assess it
                         possibleHabits += 1 // acknowledge that this was an opportunity to complete the habit
                         if habit.dates.contains(date) { // if you completed this habit on this day
-                            // print("incrementing completedHabits for habit: \(habit.name)")
                             completedHabits += 1 // increment completed habits
-                            print("\(habit.name) completed")
                         }
-                        
                     } // else, do not count this habit. proceed to the next.
                 }
-                
-                print("possible habits: \(possibleHabits)")
                 
                 if possibleHabits != 0 { // if there were any habits created before this day
                     let preciseOpacityValue = (completedHabits / possibleHabits) // calculated the fraction of habits completed
@@ -176,11 +167,7 @@ class ViewModel : ObservableObject {
                 } else {
                     opacities.insert(0, at: 0) // no habits were created by this day -> opacity should equal 0
                 }
-                
-                print("FINAL SCORE: \(completedHabits) / \(possibleHabits)")
-                print("OPACITY: \(opacities[0])")
             } else {
-                print("createDayScores() error: unable to create date equivalent to \(x) days ago")
                 return [0]
             }
             

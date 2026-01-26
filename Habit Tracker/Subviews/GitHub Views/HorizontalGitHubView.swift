@@ -20,6 +20,8 @@ struct HorizontalGitHubView: View {
     
     @State var scrollPosition : Int?
     
+    
+    
     var body: some View {
         
         let allWeekdays = ["Mon", "Tues", "Weds", "Thurs", "Fri", "Sat", "Sun"]
@@ -30,7 +32,15 @@ struct HorizontalGitHubView: View {
         
         let endDate = viewModel.getEndOfCurrentWeek()
         let startDate = calendar.date(byAdding: .day, value: (1 - numberOfDays), to: calendar.startOfDay(for: endDate))!
-                
+        
+        let color : Color = {
+            if let colorHash = habit.colorHash {
+                return Color(hex: colorHash)
+            } else {
+                return Color.green
+            }
+        }()
+        
         VStack {
             HStack {
                 
@@ -43,7 +53,6 @@ struct HorizontalGitHubView: View {
                             Text(day)
                                 .hidden()
                         }
-                        
                     }
                 }
                 
@@ -64,7 +73,7 @@ struct HorizontalGitHubView: View {
                             
                             ZStack {
                                 RoundedRectangle(cornerRadius: 2.0)
-                                    .foregroundStyle(isComplete ? .green : .gray.opacity(0.15))
+                                    .foregroundStyle(isComplete ? color : .gray.opacity(0.15))
                                 
                                 /*
                                  Text(date.description)

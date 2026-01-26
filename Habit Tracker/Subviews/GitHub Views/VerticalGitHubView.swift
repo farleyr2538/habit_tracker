@@ -22,19 +22,24 @@ struct VerticalGitHubView: View {
     
     var body: some View {
         
-        
         let allWeekdays = ["Mon", "Tues", "Wed", "Thurs", "Fri", "Sat", "Sun"]
         let selectedWeekdays = ["Mon", "", "Wed", "", "Fri", "", "Sun"]
         let selectedWeekdaysArray = Array(selectedWeekdays.enumerated())
-        
         
         let gridCols : [GridItem] = Array(repeating: GridItem(.fixed(boxDimensions), spacing: 5.0), count: numberOfCols) // number of cols permitted
         
         let endDate = viewModel.getEndOfCurrentWeek()
         let startDate = calendar.date(byAdding: .day, value: (1 - numberOfDays), to: calendar.startOfDay(for: endDate))!
+        
+        let color : Color = {
+            if let colorHash = habit.colorHash {
+                return Color(hex: colorHash)
+            } else {
+                return Color.green
+            }
+        }()
                 
         VStack {
-                
             
             HStack {
                 ForEach(selectedWeekdaysArray, id: \.offset) { index, day in
@@ -67,7 +72,7 @@ struct VerticalGitHubView: View {
                         
                         ZStack {
                             RoundedRectangle(cornerRadius: 2.0)
-                                .foregroundStyle(isComplete ? .green : .gray.opacity(0.15))
+                                .foregroundStyle(isComplete ? color : .gray.opacity(0.15))
                         }
                         .frame(width: boxDimensions, height: boxDimensions)
                         .padding(.vertical, -2)
