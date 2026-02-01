@@ -17,7 +17,7 @@ import AppKit
 extension Color {
     
     init(hex: String) {
-        print("creating color from string: \(hex)...")
+        // print("creating color from string: \(hex)...")
         
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
         var int: UInt64 = 0
@@ -45,7 +45,7 @@ extension Color {
     }
     
     func toHex(includeAlpha: Bool = false) -> String? {
-        print("running toHex()...")
+        // print("running toHex()...")
         
         #if canImport(UIKit)
         guard let components = UIColor(self).cgColor.components else { return nil }

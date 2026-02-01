@@ -15,7 +15,7 @@ struct DayView: View {
     var date : Date
     
     @State var pressEffect : Bool = false
-    var completed : Bool
+    @State var completed : Bool
     
     let impact = UIImpactFeedbackGenerator(style: .medium)
     
@@ -40,9 +40,11 @@ struct DayView: View {
             withAnimation(.bouncy) {
                 pressEffect = true
             }
-            
+        
             // create copies of required variables
             var startingFrom = habit.startFrom
+            
+            // create copies of habits' dates
             var dates = habit.dates
             
             if !completed {
@@ -54,6 +56,8 @@ struct DayView: View {
                     startingFrom = date
                 }
                 
+                completed = true
+                
             } else {
                 // remove date from dates
                 dates.removeAll { calendar.isDate($0, inSameDayAs: date) }
@@ -62,9 +66,11 @@ struct DayView: View {
                 
                 // create a new startingFrom
                 startingFrom = viewModel.calculateStartFrom(habit: habit)
+                
+                completed = false
             }
             
-            // re-assign variables to habit
+            // re-assign dates back to habits
             habit.dates = dates
             habit.startFrom = startingFrom
             

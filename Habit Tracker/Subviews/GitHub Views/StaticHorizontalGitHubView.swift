@@ -40,8 +40,10 @@ struct StaticHorizontalGitHubView: View {
                 if selectedWeekdays.contains(day) {
                     Text(day)
                         .font(.system(size: 8.0))
+                        .layoutPriority(1)
                 } else {
                     Spacer()
+                        .layoutPriority(1)
                 }
             }
             
@@ -61,10 +63,10 @@ struct StaticHorizontalGitHubView: View {
                 .frame(width: 10, height: 10)
                 //.padding(.vertical, -2)
                 .padding(.horizontal, -3)
+                .layoutPriority(0)
             }
         }
         .frame(height: 90)
-        //.padding(.horizontal)
         .scrollTargetLayout()
     }
 }

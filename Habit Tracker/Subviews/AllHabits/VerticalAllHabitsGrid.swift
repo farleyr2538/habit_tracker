@@ -24,31 +24,35 @@ struct VerticalAllHabitsGrid: View {
     
     @State var scrollPosition : Int?
     
-    @State var boxDimensions : Double = 15.0
+    @State var isZoomed : Bool = true
+    
+    let smallBoxDimensions : Double = 15.0
+    let largeBoxDimensions : Double = 30.0
+    
     var textSize = 10.0
     
-    let allWeekdays = ["Mon", "Tues", "Weds", "Thurs", "Fri", "Sat", "Sun"]
-    let selectedWeekdays = ["Mon", "", "Weds", "", "Fri", "", "Sun"]
+    let allWeekdays = ["M", "T", "W", "T", "F", "S", "S"]
     
     var body: some View {
         
-        let selectedWeekdaysArray = Array(selectedWeekdays.enumerated())
+        let selectedWeekdaysArray = Array(allWeekdays.enumerated())
         
-        let gridCols : [GridItem] = Array(repeating: GridItem(.fixed(boxDimensions), spacing: 5.0), count: numberOfCols) // number of rows permitted
+        let gridCols : [GridItem] = Array(
+            repeating: GridItem(
+                .fixed(isZoomed ? largeBoxDimensions : smallBoxDimensions),
+                spacing: 5.0
+            ),
+            count: numberOfCols) // number of rows permitted
                         
         VStack {
             
             VStack {
                 
-                HStack {
+                LazyVGrid(columns: gridCols) {
                     ForEach(selectedWeekdaysArray, id: \.offset) { index, day in
-                        if allWeekdays.contains(day) {
-                            Text(day)
-                        } else {
-                            Text(day)
-                        }
-                        
+                        Text(day)
                     }
+
                 }
                 .font(.system(size: textSize))
                 
@@ -65,7 +69,10 @@ struct VerticalAllHabitsGrid: View {
                                     .foregroundStyle(opacities[dayNumber] == 0 ? Color.gray.opacity(0.1) : Color.green.opacity(opacities[dayNumber]))
 
                             }
-                            .frame(width: boxDimensions, height: boxDimensions)
+                            .frame(
+                                width: isZoomed ? largeBoxDimensions : smallBoxDimensions,
+                                height: isZoomed ? largeBoxDimensions : smallBoxDimensions
+                            )
                             .padding(.vertical, -2)
                         }
                         
@@ -76,7 +83,7 @@ struct VerticalAllHabitsGrid: View {
                 .defaultScrollAnchor(.bottom)
                 .scrollBounceBehavior(.basedOnSize)
                 .scrollPosition(id: $scrollPosition, anchor: .bottom)
-                //.padding(.bottom, 50)
+                .padding(.bottom, 20)
                 
             }
             
@@ -124,19 +131,17 @@ struct VerticalAllHabitsGrid: View {
             
             
         }
+        .background(Color.background, ignoresSafeAreaEdges: .all)
+        
         .onAppear {
             opacities = viewModel.createDayScores(habits: habits)
         }
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Button {
-                    if boxDimensions == 15.0 {
-                        boxDimensions = 30.0
-                    } else {
-                        boxDimensions = 15.0
-                    }
+                    isZoomed.toggle()
                 } label: {
-                    Image(systemName: "plus.magnifyingglass")
+                    Image(systemName: isZoomed ? "minus.magnifyingglass" : "plus.magnifyingglass")
                 }
                 Button {
                     infoSheetShowing = true

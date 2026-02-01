@@ -137,20 +137,20 @@ enum MigrationPlan : SchemaMigrationPlan {
 extension SchemaV2.Habit {
     static var sampleData : [Habit] {
         
-        let decDays = [3, 6, 9, 15]
+        let decDays = [3, 6, 9, 15, 18, 22, 25, 28]
         var decDates : [Date] = []
         
-        let janDays = [1, 3, 5, 7]
+        let janDays = [1, 3, 5, 7, 10, 13, 16, 20, 23, 27, 29]
         var janDates : [Date] = []
         
-        for day in janDays {
+        for day in decDays {
             let components = DateComponents(year: 2025, month: 12, day: day)
             if let date = calendar.date(from: components) {
                 decDates.append(date)
             }
         }
         
-        for day in decDays {
+        for day in janDays {
             let components = DateComponents(year: 2026, month: 1, day: day)
             if let date = calendar.date(from: components) {
                 janDates.append(date)

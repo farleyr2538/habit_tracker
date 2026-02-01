@@ -18,13 +18,28 @@ struct HabitTrackerApp : App {
     let container : ModelContainer
     
     init() {
+        // initialize modelContainer
+        
+        let schema = Schema([
+            Habit.self
+        ])
+        
+        let modelConfiguration = ModelConfiguration(
+            schema: schema,
+            isStoredInMemoryOnly: false,
+            cloudKitDatabase: .automatic
+        )
+        
+        let migrationPlan = MigrationPlan.self
+        
         do {
             container = try ModelContainer(
-                for: Habit.self,
-                migrationPlan: MigrationPlan.self
+                for: schema,
+                migrationPlan: migrationPlan,
+                configurations: [modelConfiguration]
             )
         } catch {
-            fatalError("unable to generate container: \(error)")
+            fatalError("Could not initialize ModelContainer: \(error)")
         }
         
     }

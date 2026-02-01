@@ -11,29 +11,40 @@ struct HabitCard : View {
     
     @Bindable var habit : Habit
     
-    @State var tickIsGreen : Bool = false
+    @State var tickIsHighlighted : Bool = false
     
     let today = calendar.startOfDay(for: Date())
     
     var body : some View {
         
+        let color : Color = {
+            if let colorHash = habit.colorHash {
+                return Color(hex: colorHash)
+            } else {
+                return Color.green
+            }
+        }()
+        
         VStack {
                                                         
             HStack {
                 Text(habit.name)
-                // .foregroundStyle(.black)
                     .font(.title2)
+                    .layoutPriority(1.0)
                 
                 Spacer()
+                    .layoutPriority(0)
                 
                 ZStack {
                     RoundedRectangle(cornerRadius: 15.0)
-                        .foregroundStyle(tickIsGreen ? .green.opacity(1.0) : .gray.opacity(0.2))
+                        .foregroundStyle(tickIsHighlighted ? color : .gray.opacity(0.2))
                     Image(systemName: "checkmark")
-                        .foregroundStyle(tickIsGreen ? .white : .unselectedCheckmark)
-                        // .foregroundStyle(.white)
+                        .foregroundStyle(tickIsHighlighted ? .white : .unselectedCheckmark)
                         
                 }
+                .frame(width: 50, height: 50)
+                .layoutPriority(1.0)
+                
                 .onTapGesture {
                     
                     let impact = UIImpactFeedbackGenerator(style: .medium)
@@ -41,23 +52,24 @@ struct HabitCard : View {
                     
                     if habit.dates.contains(today) {
                         habit.dates.removeAll(where: { $0 == today })
-                        tickIsGreen = false
+                        tickIsHighlighted = false
                     } else {
                         habit.dates.append(today)
-                        tickIsGreen = true
+                        tickIsHighlighted = true
                     }
                 }
-                .frame(width: 50, height: 50)
                 
                 
             } // end of HStack
             .padding(.top, 5)
             
             StaticHorizontalGitHubView(habit: habit)
+                .layoutPriority(0)
+            
         } // end of each habit view
         .onAppear {
             if habit.dates.contains(today) {
-                tickIsGreen = true
+                tickIsHighlighted = true
             }
         }
         // internal padding
@@ -66,11 +78,8 @@ struct HabitCard : View {
         .padding(.horizontal, 15)
         .background(Color.card)
         .cornerRadius(15)
-        
-        
-        
+        .frame(maxWidth: 400)
     }
-    
 }
 
 #Preview {

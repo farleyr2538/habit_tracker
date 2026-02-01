@@ -16,7 +16,7 @@ struct ContentView: View {
     
     @State private var coordinator = NavigationCoordinator()
     
-    @State var habitEditorShowing : Bool = false
+    @State var createHabitSheetShowing : Bool = false
     @State var newHabitError : Bool = false
     
     // SwiftData
@@ -25,78 +25,74 @@ struct ContentView: View {
     
     var body: some View {
         
-        NavigationStack(path: $coordinator.path) {
-            
-            Group {
-                if !habits.isEmpty {
-                    HabitListView()
-                        .navigationDestination(for: Habit.self) { habit in
-                            HabitView(habit: habit)
-                        }
-                } else {
+        Group {
+            if !habits.isEmpty {
+                
+                TabView {
                     
-                    VStack {
-                        
-                        Spacer()
-                        
-                        Text("No habits yet")
-                            .font(.title3)
-                            .padding(.top, 100)
-                            .foregroundStyle(.secondary)
-                               
-                        Spacer()
-                        
-                        Button {
-                            habitEditorShowing.toggle()
-                        } label: {
-                            Text("Create my first Habit")
-                                .padding(15)
-                                
+                    Tab("List", systemImage: "list.bullet") {
+                        NavigationStack(path: $coordinator.path) {
+                            HabitListView()
+                                .navigationTitle("Habits")
+                                .navigationDestination(for: Habit.self) { habit in
+                                    HabitView(habit: habit)
+                                }
                         }
-                        .buttonStyle(.borderedProminent)
-                        .padding(.bottom, 50)
-                                                
-                        /*
-                        Group {
-                            
-                            if #available(iOS 26.0, *) {
-                                Button {
-                                    habitEditorShowing.toggle()
-                                } label: {
-                                    Text("Create my first Habit")
-                                        .padding(15)
-                                        .foregroundStyle(.black.opacity(0.8))
+                    }
+                    
+                    Tab("Stats", systemImage: "chart.bar") {
+                        NavigationStack {
+                            /*
+                            List {
+                                NavigationLink(destination: HabitCompletionBarChart()) {
+                                    Text("Habit Completion Bar Chart")
                                 }
-                                .buttonStyle(.glass)
-                                .glassEffect()
-                                
-                            } else {
-                                
-                                Button {
-                                    habitEditorShowing.toggle()
-                                } label: {
-                                    Text("Create my first Habit")
-                                        .padding(15)
+                                NavigationLink(destination: VerticalAllHabitsGrid()) {
+                                    Text("Vertical Habits view")
                                 }
-                                .background(Capsule())
-                                .buttonStyle(.borderedProminent)
+
                             }
+                            */
+                            VerticalAllHabitsGrid()
                         }
-                        .padding(.top, 250)
-                        .padding(.bottom, 100)
-                         */
+                        
                     }
-                    .sheet(isPresented: $habitEditorShowing) {
-                        CreateHabitSheet(habitEditorShowing: $habitEditorShowing)
-                            .presentationBackground(.ultraThinMaterial)
+                    
+                }
+                .background(Color.background, ignoresSafeAreaEdges: .all)
+                .environment(coordinator)
+                
+            } else {
+                
+                VStack {
+                    
+                    Spacer()
+                    
+                    Text("No habits yet")
+                        .font(.title3)
+                        .padding(.top, 100)
+                        .foregroundStyle(.secondary)
+                           
+                    Spacer()
+                    
+                    Button {
+                        createHabitSheetShowing.toggle()
+                    } label: {
+                        Text("Create my first Habit")
+                            .padding(15)
+                            
                     }
+                    .buttonStyle(.borderedProminent)
+                    .padding(.bottom, 50)
+                }
+                .sheet(isPresented: $createHabitSheetShowing) {
+                    CreateHabitSheet(habitEditorShowing: $createHabitSheetShowing)
+                        .presentationBackground(.ultraThinMaterial)
                 }
             }
-            .frame(maxWidth: .infinity)
-            .background(Color.background)
         }
-        
-        .environment(coordinator)
+        .frame(maxWidth: .infinity)
+
     }
 }
 

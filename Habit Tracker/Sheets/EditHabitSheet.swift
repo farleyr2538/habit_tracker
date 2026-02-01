@@ -12,6 +12,8 @@ struct EditHabitSheet: View {
     @Environment(\.modelContext) private var context
     
     @Environment(NavigationCoordinator.self) private var coordinator
+    
+    @EnvironmentObject var viewModel: ViewModel
 
     @Bindable var habit : Habit
     
@@ -77,14 +79,13 @@ struct EditHabitSheet: View {
             .padding(.horizontal, 20)
             
             .onAppear {
-                // set state variables to match given habit's variables
+                // set state variables to match given habit's current variables
                 habitName = habit.name
                 
                 startingDate = habit.startFrom
                 
                 // if habit has a colorHex...
                 if let colorHex = habit.colorHash {
-
                     habitColor = Color(hex: colorHex)
                 } else {
                     habitColor = .green
@@ -112,11 +113,12 @@ struct EditHabitSheet: View {
                             habit.colorHash = newColorHex
                         }
                         
-                        habit.startFrom = startingDate
+                        // to do: calculate correct starting date
+                        habit.startFrom = viewModel.calculateStartFrom(habit: habit)
                         
                         // try to save
                         try? context.save()
-                        
+                            
                         dismiss()
                         
                     } label: {

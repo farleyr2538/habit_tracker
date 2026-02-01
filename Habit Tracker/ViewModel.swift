@@ -14,15 +14,10 @@ var formatter = DateFormatter()
 
 class ViewModel : ObservableObject {
     
-    // @Published var habits : [Habit] = []
     @Published var userConfig = UserConfig()
-    
-    // private let modelContext : ModelContext
-    
-    init(/*modelContext: ModelContext*/) {
-                
-        // self.modelContext = modelContext
         
+    init() {
+                        
         // record the date the user first sets up the app
         if let lastMonth = calendar.date(byAdding: .month, value: -1, to: userConfig.setupDate) { // returns optional Date type for same day in previous month
             let desiredMonth = calendar.component(.month, from: lastMonth)
@@ -93,14 +88,6 @@ class ViewModel : ObservableObject {
         }
     }
     
-    /*func adjust(givenDate: Date, months: Int) -> Date {
-        guard let newDate : Date = calendar.date(byAdding: .month, value: months, to: givenDate) else {
-                fatalError("Could not create date")
-        }
-        return newDate
-    }*/
-
-    
     func datesInLast(dateComponent: Calendar.Component, number: Int) -> [Date] {
         var returnArray : [Date] = []
         let today = calendar.startOfDay(for: Date())
@@ -134,7 +121,6 @@ class ViewModel : ObservableObject {
     // function to create an array of "opacities", reflecting what proportion of habits (that had started on this day) were completed. eg. 1.0 = all habits completed. 0.33 = 1/3 habits completed.
     func createDayScores(habits: [Habit]) -> [Double] {
                 
-        // let today = calendar.startOfDay(for: Date())
         let endOfThisWeek = getEndOfCurrentWeek()
         
         var opacities : [Double] = []
@@ -144,17 +130,19 @@ class ViewModel : ObservableObject {
         for x in 0..<yearInWeeks { // for each day in the last year
             
             // create date by subtracting x from today
-            if let date = calendar.date(byAdding: .day, value: -x, to: endOfThisWeek) {
+            if let dateRaw = calendar.date(byAdding: .day, value: -x, to: endOfThisWeek) {
+                let date = calendar.startOfDay(for: dateRaw) // Normalize to start of day
                 
                 var possibleHabits : Double = 0
                 var completedHabits : Double = 0
                 
                 for habit in habits { // for each habit
                                         
-                    let startingDate = habit.startFrom
+                    let startingDate = calendar.startOfDay(for: habit.startFrom)
                     if date >= startingDate { // if the date we are assessing is after the habit began, assess it
                         possibleHabits += 1 // acknowledge that this was an opportunity to complete the habit
-                        if habit.dates.contains(date) { // if you completed this habit on this day
+                        
+                        if habit.dates.contains(where: { calendar.isDate($0, inSameDayAs: date) }) { // check if any of the habit's dates match this day
                             completedHabits += 1 // increment completed habits
                         }
                     } // else, do not count this habit. proceed to the next.

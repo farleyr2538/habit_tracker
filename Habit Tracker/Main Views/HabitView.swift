@@ -20,31 +20,36 @@ struct HabitView: View {
         
     var body: some View {
         
+        
+        
         VStack {
             
             VStack(spacing: 30) {
                 
-                HStack {
+                HStack(alignment: .bottom) {
                     
-                    VStack(alignment: .leading) {
+                    VStack(alignment: .leading, spacing: 5) {
                         Text(habit.name)
                             .font(.title)
                         
-                        Text("Created: " + habit.dateCreated.formatted(date: .long, time: .omitted))
-                            .font(.subheadline)
-                            .foregroundStyle(.gray)
+                        VStack(alignment: .leading) {
+                            Text("Created on: \(habit.dateCreated.formatted(date: .long, time: .omitted))")
+                            Text("Start date: \(habit.startFrom.formatted(date: .long, time: .omitted))")
+                        }
+                        .font(.system(size: 14.0))
+                        .foregroundStyle(.gray)
                     }
                     .padding(.leading, 10)
                     .padding(.top, 5)
                     
                     Spacer()
+                    
                 }
                 
                 HorizontalGitHubView(habit: habit, width: .wide)
                 
                 MultiMonthView(habit: habit, color: .constant(nil))
                     .frame(height: 290)
-                
                 
             }
             
