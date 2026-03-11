@@ -112,6 +112,11 @@ struct CreateHabitSheet: View {
                                 print("unable to convert color \(color != nil ? color!.description : Color.green.description) to hex")
                             }
                             
+                            // set earliest date as starting date of habit
+                            if let earliestDate = habitToInsert.dates.min() {
+                                habitToInsert.startFrom = earliestDate
+                            }
+                            
                             // add to context & save
                             context.insert(habitToInsert)
                             do {

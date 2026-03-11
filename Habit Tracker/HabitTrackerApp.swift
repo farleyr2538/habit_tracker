@@ -19,19 +19,24 @@ struct HabitTrackerApp : App {
     
     init() {
         // initialize modelContainer
-        
+
         let schema = Schema([
             Habit.self
         ])
-        
+
+        // Use shared app group container so widget can access the same data
+        let appGroupID = "group.com.rob.habittracker"
+        let appGroupContainer = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID)!
+        let storeURL = appGroupContainer.appendingPathComponent("HabitTracker.sqlite")
+
         let modelConfiguration = ModelConfiguration(
             schema: schema,
-            isStoredInMemoryOnly: false,
+            url: storeURL,
             cloudKitDatabase: .automatic
         )
-        
+
         let migrationPlan = MigrationPlan.self
-        
+
         do {
             container = try ModelContainer(
                 for: schema,
@@ -41,7 +46,7 @@ struct HabitTrackerApp : App {
         } catch {
             fatalError("Could not initialize ModelContainer: \(error)")
         }
-        
+
     }
     
     var body: some Scene {

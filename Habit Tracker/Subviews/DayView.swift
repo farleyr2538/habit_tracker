@@ -22,14 +22,22 @@ struct DayView: View {
     @Binding var color : Color?
     @State var highlightColor : Color = .green
     
+    @State var outline : Bool = false
+    
     var body: some View {
         
         let dayNumber = calendar.component(.day, from: date)
+        let today = calendar.startOfDay(for: Date())
         
         ZStack {
-            DayBox(dayNumber: dayNumber)
+            DayBox(dayNumber: dayNumber, outline: $outline)
                 .scaleEffect(pressEffect ? 0.4 : 1)
                 .foregroundStyle(completed ? color ?? Color.init(hex: habit.colorHash ?? "34C759") : .black)
+        }
+        .onAppear {
+            if today == date {
+                outline = true
+            }
         }
         .onTapGesture {
             
@@ -62,7 +70,7 @@ struct DayView: View {
                 // remove date from dates
                 dates.removeAll { calendar.isDate($0, inSameDayAs: date) }
                 
-                // if this was the earliest date (ie. before dateCreated and before any other date), set startingDate to the next earliest date
+                // if this was the earliest date (ie. before dateCreated and before any other date), set startingDate to the next earliest date?
                 
                 // create a new startingFrom
                 startingFrom = viewModel.calculateStartFrom(habit: habit)

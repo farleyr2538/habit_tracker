@@ -22,14 +22,20 @@ struct CustomColorPicker: View {
                 
                 Spacer()
                 
-                DayBox(dayNumber: todaysDate)
+                DayBox(
+                    dayNumber: todaysDate,
+                    outline: .constant(false)
+                )
                     .foregroundStyle(selectedColor)
             }
             
             LazyVGrid(columns: Array(repeating: GridItem(.fixed(35.0)), count: 6), spacing: 10) {
                 ForEach(colors, id: \.self) { color in
                     ZStack {
-                        DayBox(dayNumber: todaysDate)
+                        DayBox(
+                            dayNumber: todaysDate,
+                            outline: .constant(false)
+                        )
                             .foregroundStyle(color)
                             .onTapGesture {
                                 selectedColor = color

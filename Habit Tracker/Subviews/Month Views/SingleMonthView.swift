@@ -46,21 +46,24 @@ struct SingleMonthView: View {
                 
                 ForEach(0..<(totalDays), id: \.self) { index in
                     
-                    if (index >= firstDay) {
+                    if index >= firstDay {
                         
                         // create date
                         let dayNumber = index - firstDay + 1
                         let components = DateComponents.init(year: year, month: month, day: dayNumber)
-                        if let date = calendar.date(from: components) {
+                        if let dateFromComponents = calendar.date(from: components) {
+                            
+                            let date = calendar.startOfDay(for: dateFromComponents)
                             
                             // if date is in dates...
                             let isInDates = habit.dates.contains(date)
-                            DayView(
-                                habit: habit,
-                                date: date,
-                                completed: isInDates ? true : false,
-                                color: $color
-                            )
+                                DayView(
+                                    habit: habit,
+                                    date: date,
+                                    completed: isInDates ? true : false,
+                                    color: $color,
+                                    outline: false
+                                )
                         }
                     } else {
                         Spacer()

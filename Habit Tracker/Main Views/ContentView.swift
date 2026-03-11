@@ -30,7 +30,7 @@ struct ContentView: View {
                 
                 TabView {
                     
-                    Tab("List", systemImage: "list.bullet") {
+                    Tab("Habits", systemImage: "list.bullet") {
                         NavigationStack(path: $coordinator.path) {
                             HabitListView()
                                 .navigationTitle("Habits")
@@ -40,7 +40,7 @@ struct ContentView: View {
                         }
                     }
                     
-                    Tab("Stats", systemImage: "chart.bar") {
+                    Tab("Overview", systemImage: "chart.bar") {
                         NavigationStack {
                             /*
                             List {

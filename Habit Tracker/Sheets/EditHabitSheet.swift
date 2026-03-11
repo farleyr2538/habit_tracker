@@ -72,7 +72,7 @@ struct EditHabitSheet: View {
             .padding(.vertical, 30)
             .padding(.horizontal, 20)
             
-            .background(Color.white)
+            .background(.card)
             .cornerRadius(15.0)
             
             .padding(.vertical, 40)
