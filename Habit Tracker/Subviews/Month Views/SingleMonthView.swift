@@ -62,7 +62,7 @@ struct SingleMonthView: View {
                                     date: date,
                                     completed: isInDates ? true : false,
                                     color: $color,
-                                    outline: false
+                                    isToday: false
                                 )
                         }
                     } else {

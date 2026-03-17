@@ -24,7 +24,41 @@ enum Direction {
     case right
 }
 
-typealias Habit = SchemaV2.Habit
+typealias Habit = SchemaV3.Habit
+
+enum SchemaV3 : VersionedSchema {
+    
+    static var versionIdentifier: Schema.Version {
+        Schema.Version(3, 0, 0)
+    }
+    
+    static var models: [any PersistentModel.Type] { [Habit.self] }
+    
+    @Model
+    class Habit {
+        
+        var name : String
+        var dates : [Date]
+        
+        var colorHash : String?
+        
+        var dateCreated : Date
+        var startFrom : Date
+        var order : Int = 0  // Provide default value for migration
+        
+        init(name: String, dates: [Date], colorHash: String? = nil, dateCreated: Date = calendar.startOfDay(for: Date()), startFrom: Date = calendar.startOfDay(for: Date()), order: Int = 0) {
+            self.name = name
+            self.dates = dates
+            
+            self.colorHash = colorHash
+            
+            self.dateCreated = dateCreated // the day the habit was created
+            self.startFrom = startFrom // either the day the habit was created or the earliest date in its dates, whichever is earlier
+            self.order = order
+        }
+    }
+    
+}
 
 enum SchemaV2 : VersionedSchema {
     
@@ -92,11 +126,13 @@ enum SchemaV1 : VersionedSchema {
 
 
 enum MigrationPlan : SchemaMigrationPlan {
-    static var schemas: [any VersionedSchema.Type] = [SchemaV1.self, SchemaV2.self]
+    
+    static var schemas: [any VersionedSchema.Type] = [SchemaV1.self, SchemaV2.self, SchemaV3.self]
     
     static var stages: [MigrationStage] {
         [
-            migrateV1ToV2
+            migrateV1ToV2,
+            migrateV2ToV3
         ]
     }
     
@@ -131,10 +167,28 @@ enum MigrationPlan : SchemaMigrationPlan {
         },
         didMigrate: nil
     )
+    
+    static let migrateV2ToV3 = MigrationStage.custom(
+        fromVersion: SchemaV2.self,
+        toVersion: SchemaV3.self,
+        willMigrate: nil,
+        didMigrate: { context in
+            let habits = try context.fetch(FetchDescriptor<SchemaV3.Habit>())
+            
+            // Assign order values based on dateCreated to maintain existing order
+            let sortedHabits = habits.sorted { $0.dateCreated < $1.dateCreated }
+            
+            for (index, habit) in sortedHabits.enumerated() {
+                habit.order = index
+            }
+            
+            try context.save()
+        }
+    )
 }
 
 
-extension SchemaV2.Habit {
+extension SchemaV3.Habit {
     static var sampleData : [Habit] {
         
         let decDays = [3, 6, 9, 15, 18, 22, 25, 28]

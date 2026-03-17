@@ -12,6 +12,7 @@ struct EditHabitSheet: View {
     @Environment(\.modelContext) private var context
     
     @Environment(NavigationCoordinator.self) private var coordinator
+    @Environment(SubscriptionManager.self) private var subscriptionManager
     
     @EnvironmentObject var viewModel: ViewModel
 
@@ -55,6 +56,8 @@ struct EditHabitSheet: View {
                     .datePickerStyle(.automatic)
                 
                 CustomColorPicker(selectedColor: $habitColor)
+                    .disabled(!subscriptionManager.isPremium)
+                    .opacity(subscriptionManager.isPremium ? 1.0 : 0.2)
                             
                 Button(role: .destructive) {
                     deleteAlertShowing.toggle()

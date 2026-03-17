@@ -14,32 +14,53 @@ struct HabitListView: View {
     @Environment(SubscriptionManager.self) private var subscriptionManager
     
     // SwiftData
-    @Query(sort: [SortDescriptor(\Habit.dateCreated, order: .forward)]) private var habits : [Habit]
+    @Query(sort: [SortDescriptor(\Habit.order, order: .forward)]) private var habits : [Habit]
     @Environment(\.modelContext) private var context
     
     @State var newHabitSheetShowing : Bool = false
     @State var paywallSheetShowing : Bool = false
     
+    private func moveHabit(from source: IndexSet, to destination: Int) {
+        var reorderedHabits = habits
+        reorderedHabits.move(fromOffsets: source, toOffset: destination)
+        
+        // Update the order property for all habits
+        for (index, habit) in reorderedHabits.enumerated() {
+            habit.order = index
+        }
+    }
+    
     var body: some View {
         
-            ScrollView {
-                VStack(spacing: 15) {
-                    ForEach(habits) { habit in
-                        HabitCard(habit: habit)
-                            .onTapGesture {
-                                coordinator.path.append(habit)
-                            }
-                    }
+            List {
+                
+                ForEach(habits) { habit in
+                    HabitCard(habit: habit)
+                        .listRowInsets(EdgeInsets(top: 7.5, leading: 15, bottom: 7.5, trailing: 15))
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                        .onTapGesture {
+                            coordinator.path.append(habit)
+                        }
                 }
-                .padding(.horizontal, 15)
+                .onMove(perform: moveHabit)
             }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
             .frame(maxWidth: .infinity)
             .background(Color.background, ignoresSafeAreaEdges: .all)
+            //.environment(\.editMode, .constant(.active)) // Always in edit mode for drag
             
             // add habit button
             .safeAreaInset(edge: .bottom, alignment: .trailing) {
                 Button {
-                    newHabitSheetShowing = true
+                    // check if habits are greater or equal to 3
+                    if !subscriptionManager.isPremium && habits.count >= 3 {
+                        paywallSheetShowing = true
+                        return
+                    } else {
+                        newHabitSheetShowing = true
+                    }
                 } label: {
                     ZStack {
                         Circle()

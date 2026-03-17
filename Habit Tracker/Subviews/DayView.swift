@@ -22,7 +22,7 @@ struct DayView: View {
     @Binding var color : Color?
     @State var highlightColor : Color = .green
     
-    @State var outline : Bool = false
+    @State var isToday : Bool = false
     
     var body: some View {
         
@@ -30,13 +30,13 @@ struct DayView: View {
         let today = calendar.startOfDay(for: Date())
         
         ZStack {
-            DayBox(dayNumber: dayNumber, outline: $outline)
+            DayBox(dayNumber: dayNumber, isToday: $isToday)
                 .scaleEffect(pressEffect ? 0.4 : 1)
-                .foregroundStyle(completed ? color ?? Color.init(hex: habit.colorHash ?? "34C759") : .black)
+                .foregroundStyle(completed ? color ?? Color.init(hex: habit.colorHash ?? "34C759") : isToday ? .red : .black)
         }
         .onAppear {
             if today == date {
-                outline = true
+                isToday = true
             }
         }
         .onTapGesture {

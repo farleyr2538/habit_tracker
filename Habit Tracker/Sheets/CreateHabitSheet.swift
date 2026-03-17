@@ -11,6 +11,7 @@ struct CreateHabitSheet: View {
     
     @EnvironmentObject var viewModel : ViewModel
     @Environment(\.modelContext) private var context
+    @Environment(SubscriptionManager.self) var subscriptionManager
     
     @State var newHabit : Habit = Habit(name: "", dates: [])
     @Binding var habitEditorShowing : Bool
@@ -52,19 +53,23 @@ struct CreateHabitSheet: View {
                             }
                         }
                 }
-                                
-                // color picker
-                HStack {
-                    Spacer()
-                    
-                    CustomColorPicker(selectedColor: Binding(
-                        get: { color ?? .green },
-                        set: { color = $0 }
+                
+                // color picker - Premium Only
+                //if subscriptionManager.isPremium {
+                    HStack {
+                        Spacer()
+                        
+                        CustomColorPicker(selectedColor: Binding(
+                            get: { color ?? .green },
+                            set: { color = $0 }
+                            )
                         )
-                    )
-                    
-                    Spacer()
-                }
+                        
+                        Spacer()
+                    }
+                    .disabled(!subscriptionManager.isPremium)
+                    .opacity(!subscriptionManager.isPremium ? 0.2 : 1.0)
+                //}
                 
                 VStack {
                     Text("Select any recent dates you have completed this habit")
@@ -155,5 +160,6 @@ struct CreateHabitSheet: View {
         habitEditorShowing: .constant(true)
     )
     .environmentObject(ViewModel())
+    .environment(SubscriptionManager())
     .modelContainer(for: Habit.self, inMemory: true)
 }

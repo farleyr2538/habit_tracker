@@ -18,6 +18,7 @@ struct ContentView: View {
     
     @State var createHabitSheetShowing : Bool = false
     @State var newHabitError : Bool = false
+    @State var settingsSheetShowing: Bool = false
     
     // SwiftData
     @Query private var habits : [Habit]
@@ -36,6 +37,15 @@ struct ContentView: View {
                                 .navigationTitle("Habits")
                                 .navigationDestination(for: Habit.self) { habit in
                                     HabitView(habit: habit)
+                                }
+                                .toolbar {
+                                    ToolbarItem(placement: .primaryAction) {
+                                        Button {
+                                            settingsSheetShowing.toggle()
+                                        } label: {
+                                            Image(systemName: "gearshape")
+                                        }
+                                    }
                                 }
                         }
                     }
@@ -61,6 +71,10 @@ struct ContentView: View {
                 }
                 .background(Color.background, ignoresSafeAreaEdges: .all)
                 .environment(coordinator)
+                .sheet(isPresented: $settingsSheetShowing) {
+                    SettingsView()
+                        .presentationBackground(.ultraThinMaterial)
+                }
                 
             } else {
                 

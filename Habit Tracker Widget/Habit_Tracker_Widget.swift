@@ -8,6 +8,15 @@
 import WidgetKit
 import SwiftUI
 import SwiftData
+import AppIntents
+import StoreKit
+
+// MARK: - Product IDs
+// Product identifiers for subscription verification
+enum ProductID {
+    static let premiumMonthly = "com.rob.habitTracker.premiumMonthly"
+    static let premiumAnnual = "com.rob.habitTracker.premiumAnnual"
+}
 
 // MARK: - Shared Constants
 // Define calendar here so we don't need to import ViewModel
@@ -45,8 +54,112 @@ struct HabitSnapshot: Codable, Hashable {
     }
 }
 
+// MARK: - App Intent for Widget Configuration
+struct HabitEntity: AppEntity {
+    let id: String
+    let name: String
+    
+    static var typeDisplayRepresentation: TypeDisplayRepresentation = "Habit"
+    
+    var displayRepresentation: DisplayRepresentation {
+        DisplayRepresentation(title: "\(name)")
+    }
+    
+    static var defaultQuery = HabitEntityQuery()
+}
+
+struct HabitEntityQuery: EntityQuery {
+    func entities(for identifiers: [String]) async throws -> [HabitEntity] {
+        // Fetch habits by their IDs
+        let container = try ModelContainer(
+            for: Schema([Habit.self]),
+            migrationPlan: MigrationPlan.self,
+            configurations: [getModelConfiguration()]
+        )
+        
+        let descriptor = FetchDescriptor<Habit>()
+        let habits = try await fetchHabits(from: container, with: descriptor)
+        
+        // Convert identifiers back to habit entities
+        let matchingHabits = habits.compactMap { habit -> HabitEntity? in
+            let idString = encodeIdentifier(habit.id)
+            guard identifiers.contains(idString) else { return nil }
+            return HabitEntity(id: idString, name: habit.name)
+        }
+        
+        return matchingHabits
+    }
+    
+    func suggestedEntities() async throws -> [HabitEntity] {
+        // Fetch all habits for the user to choose from
+        let container = try ModelContainer(
+            for: Schema([Habit.self]),
+            migrationPlan: MigrationPlan.self,
+            configurations: [getModelConfiguration()]
+        )
+        
+        let descriptor = FetchDescriptor<Habit>(
+            sortBy: [SortDescriptor(\.dateCreated)]
+        )
+        let habits = try await fetchHabits(from: container, with: descriptor)
+        
+        return habits.map { habit in
+            let idString = encodeIdentifier(habit.id)
+            return HabitEntity(id: idString, name: habit.name)
+        }
+    }
+    
+    @MainActor
+    private func fetchHabits(from container: ModelContainer, with descriptor: FetchDescriptor<Habit>) throws -> [Habit] {
+        return try container.mainContext.fetch(descriptor)
+    }
+    
+    private func encodeIdentifier(_ identifier: PersistentIdentifier) -> String {
+        // Use JSONEncoder to convert PersistentIdentifier to a stable string
+        let encoder = JSONEncoder()
+        if let data = try? encoder.encode(identifier),
+           let string = String(data: data, encoding: .utf8) {
+            return string
+        }
+        // Fallback - though this should rarely happen
+        return identifier.hashValue.description
+    }
+    
+    private func getModelConfiguration() -> ModelConfiguration {
+        let appGroupID = "group.com.rob.habittracker"
+        guard let appGroupContainer = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID) else {
+            fatalError("Failed to get app group container")
+        }
+        let storeURL = appGroupContainer.appendingPathComponent("HabitTracker.sqlite")
+        
+        return ModelConfiguration(
+            schema: Schema([Habit.self]),
+            url: storeURL,
+            cloudKitDatabase: .automatic
+        )
+    }
+}
+
+struct SelectHabitIntent: WidgetConfigurationIntent {
+    static var title: LocalizedStringResource = "Select Habit"
+    static var description = IntentDescription("Choose which habit to display in the widget.")
+    
+    @Parameter(title: "Habit")
+    var habit: HabitEntity?
+}
+
+// Helper function to encode PersistentIdentifier to string
+func encodeIdentifier(_ identifier: PersistentIdentifier) -> String {
+    let encoder = JSONEncoder()
+    if let data = try? encoder.encode(identifier),
+       let string = String(data: data, encoding: .utf8) {
+        return string
+    }
+    return identifier.hashValue.description
+}
+
 // MARK: - Timeline Provider
-struct Provider: TimelineProvider {
+struct Provider: AppIntentTimelineProvider {
     let modelContainer: ModelContainer
     
     init() {
@@ -55,7 +168,9 @@ struct Provider: TimelineProvider {
 
         // Use shared app group container to access the same data as the main app
         let appGroupID = "group.com.rob.habittracker"
-        let appGroupContainer = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID)!
+        guard let appGroupContainer = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID) else {
+            fatalError("Failed to get app group container")
+        }
         let storeURL = appGroupContainer.appendingPathComponent("HabitTracker.sqlite")
 
         let modelConfiguration = ModelConfiguration(
@@ -77,48 +192,73 @@ struct Provider: TimelineProvider {
     
     func placeholder(in context: Context) -> SimpleEntry {
         // Return a generic placeholder that appears instantly
-        SimpleEntry(date: Date(), habit: Optional<HabitSnapshot>.none)
+        SimpleEntry(date: Date(), habit: nil, configuration: SelectHabitIntent(), isPremium: false)
     }
 
-    func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
+    func snapshot(for configuration: SelectHabitIntent, in context: Context) async -> SimpleEntry {
         // Fetch real data for preview/snapshot
-        Task {
-            let entry = await fetchFirstHabit()
-            completion(entry)
-        }
+        return await fetchHabit(for: configuration)
     }
 
-    func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
+    func timeline(for configuration: SelectHabitIntent, in context: Context) async -> Timeline<SimpleEntry> {
         // Fetch the habit data and create a timeline
-        Task {
-            let entry = await fetchFirstHabit()
-            
-            // Update at the start of the next day so completion status stays accurate
-            let tomorrow = calendar.startOfDay(for: calendar.date(byAdding: .day, value: 1, to: Date())!)
-            
-            let timeline = Timeline(entries: [entry], policy: .after(tomorrow))
-            completion(timeline)
+        let entry = await fetchHabit(for: configuration)
+        
+        // Update at the start of the next day so completion status stays accurate
+        let tomorrow = calendar.startOfDay(for: calendar.date(byAdding: .day, value: 1, to: Date())!)
+        
+        return Timeline(entries: [entry], policy: .after(tomorrow))
+    }
+    
+    // Check if user has an active premium subscription
+    private func checkPremiumStatus() async -> Bool {
+        for await result in Transaction.currentEntitlements {
+            if case .verified(let transaction) = result {
+                if transaction.productID == ProductID.premiumMonthly || 
+                   transaction.productID == ProductID.premiumAnnual {
+                    return true
+                }
+            }
         }
+        return false
     }
     
     @MainActor
-    private func fetchFirstHabit() async -> SimpleEntry {
-        let context = modelContainer.mainContext
+    private func fetchHabit(for configuration: SelectHabitIntent) async -> SimpleEntry {
+        // Check premium status first
+        let isPremium = await checkPremiumStatus()
+        
         let descriptor = FetchDescriptor<Habit>(
             sortBy: [SortDescriptor(\.dateCreated)]
         )
         
         do {
-            let habits = try context.fetch(descriptor)
-            if let firstHabit = habits.first {
-                let snapshot = HabitSnapshot(from: firstHabit)
-                return SimpleEntry(date: Date(), habit: snapshot)
+            let habits = try modelContainer.mainContext.fetch(descriptor)
+            
+            // Try to find the habit matching the configuration
+            var selectedHabit: Habit?
+            
+            if let habitEntity = configuration.habit {
+                selectedHabit = habits.first { habit in
+                    let idString = encodeIdentifier(habit.id)
+                    return idString == habitEntity.id
+                }
+            }
+            
+            // Fall back to first habit if configured habit not found or no selection
+            if selectedHabit == nil {
+                selectedHabit = habits.first
+            }
+            
+            if let habit = selectedHabit {
+                let snapshot = HabitSnapshot(from: habit)
+                return SimpleEntry(date: Date(), habit: snapshot, configuration: configuration, isPremium: isPremium)
             } else {
-                return SimpleEntry(date: Date(), habit: Optional<HabitSnapshot>.none)
+                return SimpleEntry(date: Date(), habit: nil, configuration: configuration, isPremium: isPremium)
             }
         } catch {
             print("Error fetching habits for widget: \(error)")
-            return SimpleEntry(date: Date(), habit: Optional<HabitSnapshot>.none)
+            return SimpleEntry(date: Date(), habit: nil, configuration: configuration, isPremium: isPremium)
         }
     }
 
@@ -131,6 +271,8 @@ struct Provider: TimelineProvider {
 struct SimpleEntry: TimelineEntry {
     let date: Date
     let habit: HabitSnapshot?
+    let configuration: SelectHabitIntent
+    let isPremium: Bool
 }
 
 // MARK: - Widget View
@@ -139,7 +281,10 @@ struct Habit_Tracker_WidgetEntryView : View {
     @Environment(\.widgetFamily) var widgetFamily
     
     var body: some View {
-        if let habit = entry.habit {
+        if !entry.isPremium {
+            // Show premium upsell for non-subscribers
+            PremiumUpsellView()
+        } else if let habit = entry.habit {
             WidgetHabitCard(habitSnapshot: habit, widgetFamily: widgetFamily)
         } else {
             // Empty state when no habits exist
@@ -154,6 +299,32 @@ struct Habit_Tracker_WidgetEntryView : View {
                     .foregroundStyle(.secondary)
             }
         }
+    }
+}
+
+// MARK: - Premium Upsell View
+struct PremiumUpsellView: View {
+    var body: some View {
+        VStack(spacing: 6) {
+            Image(systemName: "star.circle.fill")
+                .font(.system(size: 50))
+                .foregroundStyle(.yellow)
+            
+            Text("Premium Feature")
+                .font(.headline)
+                .fontWeight(.bold)
+            
+            Text("Upgrade to Premium to use widgets")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+            
+            Text("Open the app to upgrade")
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+                //.padding(.top, 4)
+        }
+        .padding()
     }
 }
 
@@ -240,7 +411,7 @@ struct Habit_Tracker_Widget: Widget {
     let kind: String = "Habit_Tracker_Widget"
 
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: Provider()) { entry in
+        AppIntentConfiguration(kind: kind, intent: SelectHabitIntent.self, provider: Provider()) { entry in
             if #available(iOS 17.0, *) {
                 Habit_Tracker_WidgetEntryView(entry: entry)
                     .containerBackground(.fill.tertiary, for: .widget)
@@ -269,6 +440,7 @@ struct Habit_Tracker_Widget: Widget {
         startFrom: Date()
     )
     
-    SimpleEntry(date: .now, habit: sampleHabit)
-    SimpleEntry(date: .now, habit: nil)
+    SimpleEntry(date: .now, habit: sampleHabit, configuration: SelectHabitIntent(), isPremium: true)
+    SimpleEntry(date: .now, habit: nil, configuration: SelectHabitIntent(), isPremium: true)
+    SimpleEntry(date: .now, habit: sampleHabit, configuration: SelectHabitIntent(), isPremium: false)
 }

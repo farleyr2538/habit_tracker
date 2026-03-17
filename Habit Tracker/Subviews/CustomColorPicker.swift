@@ -24,7 +24,7 @@ struct CustomColorPicker: View {
                 
                 DayBox(
                     dayNumber: todaysDate,
-                    outline: .constant(false)
+                    isToday: .constant(false)
                 )
                     .foregroundStyle(selectedColor)
             }
@@ -34,7 +34,7 @@ struct CustomColorPicker: View {
                     ZStack {
                         DayBox(
                             dayNumber: todaysDate,
-                            outline: .constant(false)
+                            isToday: .constant(false)
                         )
                             .foregroundStyle(color)
                             .onTapGesture {
