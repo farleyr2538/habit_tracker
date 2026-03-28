@@ -86,7 +86,7 @@ struct HabitCard : View {
     
     if let sampleHabit = Habit.sampleData.first {
         HabitCard(habit: sampleHabit)
-            .environmentObject(ViewModel())
+            .environment(ViewModel())
     } else {
         Text("Unable to unwrap first sample habit")
     }

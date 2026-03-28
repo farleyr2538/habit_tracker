@@ -10,7 +10,7 @@ import SwiftData
 
 struct MultiMonthView: View {
     
-    @EnvironmentObject var viewModel : ViewModel
+    @Environment(ViewModel.self) var viewModel
     
     @Bindable var habit : Habit
     @State var months : [Date] = []
@@ -97,6 +97,6 @@ struct MultiMonthView: View {
         habit: Habit(name: "Running", dates: [Date()]),
         color: .constant(nil)
     )
-        .environmentObject(ViewModel())
+        .environment(ViewModel())
         .modelContainer(for: Habit.self, inMemory: true)
 }

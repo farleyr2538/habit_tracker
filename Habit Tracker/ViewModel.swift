@@ -12,9 +12,10 @@ import SwiftUI
 var calendar = Calendar.current
 var formatter = DateFormatter()
 
-class ViewModel : ObservableObject {
+@Observable
+class ViewModel {
     
-    @Published var userConfig = UserConfig()
+    var userConfig = UserConfig()
         
     init() {
                         

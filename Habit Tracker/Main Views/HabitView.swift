@@ -94,7 +94,7 @@ struct HabitView: View {
         HabitView(
             habit: Habit.sampleData.first!
         )
-        .environmentObject(ViewModel())
+        .environment(ViewModel())
         .modelContainer(for: Habit.self)
         .environment(NavigationCoordinator())
     }

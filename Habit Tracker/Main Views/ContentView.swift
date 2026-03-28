@@ -10,9 +10,11 @@ import SwiftData
 
 struct ContentView: View {
     
-    @EnvironmentObject var viewModel : ViewModel
-    
+    // Using @Environment instead of @EnvironmentObject for consistency
+    // This prevents crashes when environment isn't properly set up
+    @Environment(ViewModel.self) private var viewModel
     @Environment(SubscriptionManager.self) private var subscriptionManager
+    @Environment(CloudKitSyncMonitor.self) private var cloudKitMonitor
     
     @State private var coordinator = NavigationCoordinator()
     
@@ -29,9 +31,9 @@ struct ContentView: View {
         Group {
             if !habits.isEmpty {
                 
-                TabView {
+                // TabView {
                     
-                    Tab("Habits", systemImage: "list.bullet") {
+                    // Tab("Habits", systemImage: "list.bullet") {
                         NavigationStack(path: $coordinator.path) {
                             HabitListView()
                                 .navigationTitle("Habits")
@@ -47,10 +49,16 @@ struct ContentView: View {
                                         }
                                     }
                                 }
+                                .sheet(isPresented: $settingsSheetShowing) {
+                                    SettingsView()
+                                        .presentationBackground(.ultraThinMaterial)
+                                }
                         }
-                    }
+                        .environment(coordinator)
+                    // }
                     
-                    Tab("Overview", systemImage: "chart.bar") {
+                /*
+                    // Tab("Overview", systemImage: "chart.bar") {
                         NavigationStack {
                             /*
                             List {
@@ -65,47 +73,83 @@ struct ContentView: View {
                             */
                             VerticalAllHabitsGrid()
                         }
-                        
-                    }
+                        .background(Color.background, ignoresSafeAreaEdges: .all)
+                        .environment(coordinator)
+                        .sheet(isPresented: $settingsSheetShowing) {
+                            SettingsView()
+                                .presentationBackground(.ultraThinMaterial)
+                        }
+                    //}
                     
-                }
-                .background(Color.background, ignoresSafeAreaEdges: .all)
-                .environment(coordinator)
-                .sheet(isPresented: $settingsSheetShowing) {
-                    SettingsView()
-                        .presentationBackground(.ultraThinMaterial)
-                }
+                // }
+                */
                 
             } else {
                 
-                VStack {
-                    
-                    Spacer()
-                    
-                    Text("No habits yet")
-                        .font(.title3)
-                        .padding(.top, 100)
-                        .foregroundStyle(.secondary)
-                           
-                    Spacer()
-                    
-                    Button {
-                        createHabitSheetShowing.toggle()
-                    } label: {
-                        Text("Create my first Habit")
-                            .padding(15)
-                            
+                NavigationStack {
+                    VStack {
+                        
+                        Spacer()
+                        
+                        Text("No habits yet")
+                            .font(.title3)
+                            .padding(.top, 100)
+                            .foregroundStyle(.secondary)
+                               
+                        Spacer()
+                        
+                        Button {
+                            createHabitSheetShowing.toggle()
+                        } label: {
+                            Text("Create my first Habit")
+                                .padding(15)
+                                
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .padding(.bottom, 50)
                     }
-                    .buttonStyle(.borderedProminent)
-                    .padding(.bottom, 50)
+                    .navigationTitle("Habits")
+                    .toolbar {
+                        ToolbarItem(placement: .primaryAction) {
+                            Button {
+                                settingsSheetShowing.toggle()
+                            } label: {
+                                Image(systemName: "gearshape")
+                            }
+                        }
+                    }
                 }
+                .environment(coordinator)
                 .sheet(isPresented: $createHabitSheetShowing) {
                     CreateHabitSheet(habitEditorShowing: $createHabitSheetShowing)
+                        .presentationBackground(.ultraThinMaterial)
+                }
+                .sheet(isPresented: $settingsSheetShowing) {
+                    SettingsView()
                         .presentationBackground(.ultraThinMaterial)
                 }
             }
         }
         .frame(maxWidth: .infinity)
+        .overlay(alignment: .top) {
+            // CloudKit Sync Indicator
+            if cloudKitMonitor.isSyncing {
+                HStack(spacing: 8) {
+                    ProgressView()
+                        .scaleEffect(0.8)
+                    Text("Syncing to iCloud...")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(.ultraThinMaterial, in: Capsule())
+                .shadow(color: .black.opacity(0.1), radius: 4, y: 2)
+                .padding(.top, 8)
+                .transition(.move(edge: .top).combined(with: .opacity))
+            }
+        }
+        .animation(.easeInOut(duration: 0.3), value: cloudKitMonitor.isSyncing)
 
     }
 }
@@ -113,8 +157,9 @@ struct ContentView: View {
 #Preview {
     ContentView()
         .environment(SubscriptionManager())
+        .environment(CloudKitSyncMonitor())
         .environment(NavigationCoordinator())
-        .environmentObject(ViewModel())
+        .environment(ViewModel())
         .modelContainer(for: Habit.self, inMemory: true) { result in
             if case .success(let container) = result {
                 Habit.sampleData.forEach { habit in

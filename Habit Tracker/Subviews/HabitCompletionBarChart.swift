@@ -10,7 +10,7 @@ import SwiftData
 
 struct HabitCompletionBarChart: View {
     
-    @EnvironmentObject var viewModel: ViewModel
+    @Environment(ViewModel.self) var viewModel
     @Query var habits: [Habit]
     
     @State private var dayScores: [Double] = []
@@ -87,7 +87,7 @@ struct TimeButton: View {
 #Preview {
     NavigationStack {
         HabitCompletionBarChart()
-            .environmentObject(ViewModel())
+            .environment(ViewModel())
             .modelContainer(for: Habit.self, inMemory: true) { result in
                 if case .success(let container) = result {
                     Habit.sampleData.forEach { habit in

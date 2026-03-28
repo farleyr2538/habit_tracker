@@ -9,7 +9,7 @@ import SwiftUI
 
 struct DayView: View {
     
-    @EnvironmentObject var viewModel : ViewModel
+    @Environment(ViewModel.self) var viewModel
     
     @Bindable var habit : Habit
     var date : Date
@@ -100,7 +100,7 @@ struct DayView: View {
         completed: true,
         color: .constant(.yellow)
     )
-        .environmentObject(ViewModel())
+        .environment(ViewModel())
         .modelContainer(for: Habit.self, inMemory: true) { result in
             if case .success(let container) = result {
                 Habit.sampleData.forEach { habit in

@@ -9,7 +9,7 @@ import SwiftUI
 
 struct VerticalGitHubView: View {
     
-    @EnvironmentObject var viewModel : ViewModel
+    @Environment(ViewModel.self) var viewModel
     
     @State var habit : Habit
     
@@ -154,5 +154,5 @@ struct VerticalGitHubView: View {
 
 #Preview {
     VerticalGitHubView(habit: Habit.sampleData.first!)
-        .environmentObject(ViewModel())
+        .environment(ViewModel())
 }

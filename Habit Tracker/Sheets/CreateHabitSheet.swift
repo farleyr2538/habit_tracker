@@ -9,7 +9,7 @@ import SwiftUI
 
 struct CreateHabitSheet: View {
     
-    @EnvironmentObject var viewModel : ViewModel
+    @Environment(ViewModel.self) var viewModel
     @Environment(\.modelContext) private var context
     @Environment(SubscriptionManager.self) var subscriptionManager
     
@@ -159,7 +159,7 @@ struct CreateHabitSheet: View {
         newHabit: Habit(name: "", dates: []),
         habitEditorShowing: .constant(true)
     )
-    .environmentObject(ViewModel())
+    .environment(ViewModel())
     .environment(SubscriptionManager())
     .modelContainer(for: Habit.self, inMemory: true)
 }

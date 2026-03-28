@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SingleMonthView: View {
     
-    @EnvironmentObject var viewModel : ViewModel
+    @Environment(ViewModel.self) var viewModel
     
     @Bindable var habit : Habit
     @State var selectedDate : Date // a date to show the month around
@@ -81,7 +81,7 @@ struct SingleMonthView: View {
         selectedDate: Date(),
         color: .constant(nil)
     )
-    .environmentObject(ViewModel())
+    .environment(ViewModel())
     .modelContainer(for: Habit.self, inMemory: true) { result in
         if case .success(let container) = result {
             Habit.sampleData.forEach { habit in

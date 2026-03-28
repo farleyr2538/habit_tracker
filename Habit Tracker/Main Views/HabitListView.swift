@@ -57,7 +57,6 @@ struct HabitListView: View {
                     // check if habits are greater or equal to 3
                     if !subscriptionManager.isPremium && habits.count >= 3 {
                         paywallSheetShowing = true
-                        return
                     } else {
                         newHabitSheetShowing = true
                     }
@@ -84,7 +83,7 @@ struct HabitListView: View {
             
             // paywall sheet
             .sheet(isPresented: $paywallSheetShowing) {
-                PaywallSheet()
+                PaywallSheet_SubscriptionStoreView()
             }
         
         
@@ -102,7 +101,7 @@ struct HabitListView: View {
                 }
             }
     }
-    .environmentObject(ViewModel())
+    .environment(ViewModel())
     .environment(NavigationCoordinator())
     .environment(SubscriptionManager())
 }

@@ -16,6 +16,7 @@ struct PaywallSheet: View {
     @State private var selectedPlan: SubscriptionPlan = .monthly
     @State private var isPurchasing = false
     @State private var showErrorAlert = false
+    @State private var useBuiltInView = true // Toggle to use SubscriptionStoreView
     
     enum SubscriptionPlan {
         case monthly
@@ -105,7 +106,7 @@ struct PaywallSheet: View {
                             plan: .monthly,
                             isSelected: selectedPlan == .monthly,
                             title: "Monthly",
-                            price: monthlyProduct?.displayPrice ?? "Loading...",
+                            price: monthlyProduct?.displayPrice ?? "$1.99",
                             period: "/mo",
                             badge: nil
                         ) {
@@ -117,7 +118,7 @@ struct PaywallSheet: View {
                             plan: .yearly,
                             isSelected: selectedPlan == .yearly,
                             title: "Yearly",
-                            price: yearlyProduct?.displayPrice ?? "Loading...",
+                            price: yearlyProduct?.displayPrice ?? "$19.99",
                             period: "/yr",
                             badge: "Save 20%"
                         ) {
@@ -173,6 +174,21 @@ struct PaywallSheet: View {
                         .foregroundStyle(.secondary)
                 }
                 .padding(.top, 5)
+                .padding(.bottom, 16)
+                
+                // Required links for App Review
+                HStack(spacing: 20) {
+                    Link("Terms of Use", destination: URL(string: "https://yourwebsite.com/terms")!)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    
+                    Text("•")
+                        .foregroundStyle(.secondary)
+                    
+                    Link("Privacy Policy", destination: URL(string: "https://yourwebsite.com/privacy")!)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
                 .padding(.bottom, 30)
             }
         }

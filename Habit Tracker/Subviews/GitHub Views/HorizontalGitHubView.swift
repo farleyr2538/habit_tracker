@@ -9,7 +9,7 @@ import SwiftUI
 
 struct HorizontalGitHubView: View {
     
-    @EnvironmentObject var viewModel : ViewModel
+    @Environment(ViewModel.self) var viewModel
     
     @State var habit : Habit
     
@@ -165,5 +165,5 @@ struct HorizontalGitHubView: View {
     let previewHabit : Habit = Habit.sampleData.first!
     
     HorizontalGitHubView(habit: previewHabit, width: .narrow)
-        .environmentObject(ViewModel())
+        .environment(ViewModel())
 }

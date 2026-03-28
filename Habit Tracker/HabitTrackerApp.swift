@@ -8,9 +8,77 @@
 import SwiftUI
 import SwiftData
 
+// MARK: - CloudKit Sync Monitor
+@Observable
+class CloudKitSyncMonitor {
+    var isSyncing = false
+    var lastSyncError: Error?
+    var lastSyncDate: Date?
+    
+    @MainActor
+    func monitorSync(container: ModelContainer) {
+        // Monitor ModelContext changes to track sync activity
+        NotificationCenter.default.addObserver(
+            forName: ModelContext.didSave,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            guard let self = self else { return }
+            self.isSyncing = true
+            self.lastSyncDate = Date()
+            
+            // Reset syncing indicator after a brief delay
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(2))
+                self.isSyncing = false
+            }
+        }
+        
+        print("☁️ CloudKit sync monitoring enabled")
+    }
+}
+
 // MARK: - App Group Migration Helper
 struct AppGroupMigration {
     static let migrationCompleteKey = "appGroupMigrationCompleted"
+    static let schemaMigrationVerifiedKey = "schemaMigrationVerified_v3"
+    
+    /// Verifies that habits exist and have proper order values
+    /// Returns true if verification passed, false if issues were found
+    @MainActor
+    static func verifyMigration(container: ModelContainer) -> Bool {
+        do {
+            let context = container.mainContext
+            let descriptor = FetchDescriptor<Habit>()
+            let habits = try context.fetch(descriptor)
+            
+            print("🔍 Migration verification: Found \(habits.count) habits")
+            
+            // Check if any habits have missing or duplicate order values
+            let orders = habits.map { $0.order }
+            let uniqueOrders = Set(orders)
+            
+            if habits.count > 0 && uniqueOrders.count != habits.count {
+                print("⚠️ Found duplicate order values - fixing...")
+                
+                // Re-assign order values
+                let sortedHabits = habits.sorted { $0.dateCreated < $1.dateCreated }
+                for (index, habit) in sortedHabits.enumerated() {
+                    habit.order = index
+                }
+                
+                try context.save()
+                print("✅ Fixed order values for \(habits.count) habits")
+            }
+            
+            UserDefaults.standard.set(true, forKey: schemaMigrationVerifiedKey)
+            return true
+            
+        } catch {
+            print("❌ Migration verification failed: \(error)")
+            return false
+        }
+    }
     
     /// Migrates data from the old default location to the App Group container
     /// Returns true if migration was needed and completed, false if already migrated
@@ -18,6 +86,20 @@ struct AppGroupMigration {
         // Check if we've already migrated
         if UserDefaults.standard.bool(forKey: migrationCompleteKey) {
             print("✅ App Group migration already completed")
+            return false
+        }
+        
+        // SAFETY CHECK #1: If new location already has ANY data, DON'T migrate
+        // This is the safest approach - never overwrite existing data
+        if FileManager.default.fileExists(atPath: newStoreURL.path) {
+            let newTotalSize = calculateTotalStoreSize(storeURL: newStoreURL)
+            
+            // Even if it's a small file, if it exists, we preserve it
+            print("⚠️ New location already exists (\(newTotalSize) bytes)")
+            print("⚠️ SAFETY MODE: Preserving existing data, skipping migration")
+            print("⚠️ Marking migration as complete to prevent future attempts")
+            print("⚠️ NOTE: Use the Storage Locations tool to manually merge any old habits")
+            UserDefaults.standard.set(true, forKey: migrationCompleteKey)
             return false
         }
         
@@ -42,57 +124,18 @@ struct AppGroupMigration {
             let appGroupContainer = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID)!
             try FileManager.default.createDirectory(at: appGroupContainer, withIntermediateDirectories: true)
             
-            // If data already exists at new location, we need to decide what to do
-            if FileManager.default.fileExists(atPath: newStoreURL.path) {
-                print("⚠️ Data already exists at new location")
-                
-                // Compare TOTAL file sizes (main store + WAL + SHM) to determine which has more data
-                let oldTotalSize = calculateTotalStoreSize(storeURL: oldStoreURL)
-                let newTotalSize = calculateTotalStoreSize(storeURL: newStoreURL)
-                
-                print("📊 Old location total size: \(oldTotalSize) bytes")
-                print("📊 New location total size: \(newTotalSize) bytes")
-                
-                // If old location has significantly more data (more than 10KB difference), replace the new one
-                if oldTotalSize > newTotalSize + 10_000 {
-                    print("🔄 Old data appears to have more content - replacing new location with old data")
-                    
-                    // Delete the empty/smaller files at new location
-                    let newDirectory = newStoreURL.deletingLastPathComponent()
-                    let storeName = newStoreURL.lastPathComponent
-                    let relatedFiles = [storeName, storeName + "-wal", storeName + "-shm"]
-                    
-                    for fileName in relatedFiles {
-                        let fileToDelete = newDirectory.appending(path: fileName)
-                        if FileManager.default.fileExists(atPath: fileToDelete.path) {
-                            try? FileManager.default.removeItem(at: fileToDelete)
-                            print("🗑️ Deleted existing: \(fileName)")
-                        }
-                    }
-                    
-                    // Now copy the old data over
-                    try copyStoreFiles(from: oldStoreURL, to: newStoreURL)
-                    print("✅ Migration completed successfully!")
-                    UserDefaults.standard.set(true, forKey: migrationCompleteKey)
-                    return true
-                    
-                } else {
-                    print("✅ New location has sufficient data - assuming migration already complete")
-                    UserDefaults.standard.set(true, forKey: migrationCompleteKey)
-                    return false
-                }
-            }
-            
-            // New location doesn't exist, so do a clean copy
+            // Since we already checked above, new location doesn't exist
+            // Do a clean copy from old to new
             try copyStoreFiles(from: oldStoreURL, to: newStoreURL)
             
             print("✅ Migration completed successfully!")
+            print("   Copied data from old location to App Group")
             
             // Mark migration as complete
             UserDefaults.standard.set(true, forKey: migrationCompleteKey)
             
             // Optionally, delete old files to free up space
-            // Uncomment if you want to clean up:
+            // Uncomment if you want to clean up after successful migration:
             /*
             let oldDirectory = oldStoreURL.deletingLastPathComponent()
             let storeName = oldStoreURL.lastPathComponent
@@ -155,32 +198,43 @@ struct AppGroupMigration {
 
 
 
-@main
-struct HabitTrackerApp : App {
+// MARK: - Container Setup
+// ModelContainer must NOT be created in the @main App struct's init() because
+// Xcode previews crash (SIGTRAP) when Core Data is initialized that early.
+// Using a @MainActor class with a lazy property defers creation until body evaluation.
+@MainActor
+final class AppContainerSetup {
     
-    @StateObject var viewModel = ViewModel()
-    
-    @State private var subscriptionManager = SubscriptionManager()
-    
-    let container : ModelContainer
-    let migrationError: Error?
-    
-    init() {
-        // initialize modelContainer
-
-        let schema = Schema([
-            Habit.self
-        ])
-
-        // Use shared app group container so widget can access the same data
+    lazy var container: ModelContainer = {
+        let schema = Schema(versionedSchema: SchemaV3.self)
         let appGroupID = "group.com.rob.habittracker"
+        
         guard let appGroupContainer = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID) else {
-            fatalError("❌ Could not access App Group container - make sure '\(appGroupID)' is enabled in capabilities!")
+            print("⚠️ App Group container not accessible - using in-memory fallback")
+            // Use in-memory store WITHOUT migration plan for fallback scenarios
+            // Use simple model array, not versioned schema, for maximum compatibility
+            do {
+                return try ModelContainer(
+                    for: Habit.self,
+                    configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+                )
+            } catch {
+                print("❌ FATAL: App Group fallback failed: \(error)")
+                fatalError("Could not initialize even fallback ModelContainer: \(error)")
+            }
         }
         
         let storeURL = appGroupContainer.appendingPathComponent("HabitTracker.sqlite")
         
-        // Migrate existing data to App Group if this is the first launch after update
+        // Clean up any stale V4 migration flags (one-time cleanup)
+        if !UserDefaults.standard.bool(forKey: "cleanedUpV4Flags") {
+            UserDefaults.standard.removeObject(forKey: "migratedToV4CloudKitCompatible")
+            UserDefaults.standard.removeObject(forKey: "cloudKitCompatibilityChecked_v4")
+            UserDefaults.standard.set(true, forKey: "cleanedUpV4Flags")
+            print("🧹 Cleaned up V4 migration flags")
+        }
+        
+        // Migrate existing data to App Group if needed
         let didMigrate = AppGroupMigration.migrateToAppGroupIfNeeded(
             appGroupID: appGroupID,
             newStoreURL: storeURL
@@ -188,63 +242,119 @@ struct HabitTrackerApp : App {
         if didMigrate {
             print("📱 Data migrated to App Group - widgets will now work!")
         }
-         
-        let modelConfiguration = ModelConfiguration(
-            schema: schema,
-            url: storeURL,
-            cloudKitDatabase: .automatic
-        )
-
-        let migrationPlan = MigrationPlan.self
-
-        var tempContainer: ModelContainer?
-        var tempError: Error?
+        
+        // EMERGENCY RESET: Uncomment these lines if you need to delete corrupted database
+        // This will delete the existing store and start fresh
+        // DELETE THIS AFTER FIRST SUCCESSFUL RUN!
+        /*
+        if FileManager.default.fileExists(atPath: storeURL.path) {
+            try? FileManager.default.removeItem(at: storeURL)
+            let walPath = storeURL.path + "-wal"
+            let shmPath = storeURL.path + "-shm"
+            if FileManager.default.fileExists(atPath: walPath) {
+                try? FileManager.default.removeItem(atPath: walPath)
+            }
+            if FileManager.default.fileExists(atPath: shmPath) {
+                try? FileManager.default.removeItem(atPath: shmPath)
+            }
+            print("🗑️ DELETED EXISTING DATABASE FOR FRESH START")
+        }
+        */
+        
+        // Configure CloudKit sync
+        let cloudSyncDisabled = UserDefaults.standard.bool(forKey: "cloudSyncDisabled")
+        
+        let modelConfiguration: ModelConfiguration
+        if cloudSyncDisabled {
+            modelConfiguration = ModelConfiguration(
+                schema: schema,
+                url: storeURL
+            )
+            print("💾 Using local-only storage (user disabled CloudKit)")
+        } else {
+            modelConfiguration = ModelConfiguration(
+                schema: schema,
+                url: storeURL,
+                cloudKitDatabase: .private("iCloud.com.rob.habittracker")
+            )
+            print("☁️ CloudKit sync enabled (default)")
+        }
         
         do {
-            tempContainer = try ModelContainer(
+            let container = try ModelContainer(
                 for: schema,
-                migrationPlan: migrationPlan,
+                migrationPlan: MigrationPlan.self,
                 configurations: [modelConfiguration]
             )
             
-            print("ModelContainer initialization succeeded!")
+            // Verify habits are accessible
+            let context = container.mainContext
+            let descriptor = FetchDescriptor<Habit>(sortBy: [SortDescriptor(\.dateCreated)])
+            let habitCount = (try? context.fetchCount(descriptor)) ?? 0
+            print("📊 Found \(habitCount) habits in the container")
             
+            // Run migration verification to fix any order issues
+            if !UserDefaults.standard.bool(forKey: AppGroupMigration.schemaMigrationVerifiedKey) {
+                _ = AppGroupMigration.verifyMigration(container: container)
+            }
+            
+            return container
         } catch {
-            print("⚠️ ModelContainer initialization failed: \(error)")
-            tempError = error
+            print("❌ ModelContainer initialization failed: \(error)")
+            print("❌ Error details: \(error.localizedDescription)")
+            if let swiftDataError = error as? any CustomStringConvertible {
+                print("❌ SwiftData error description: \(swiftDataError)")
+            }
+            self.migrationError = error
             
-            // Create a fallback in-memory container so the app doesn't crash
+            // Create a fallback in-memory container WITHOUT migration plan
+            // Migration plans can fail with in-memory stores
+            // Use simple model array, not versioned schema, for maximum compatibility
             do {
-                tempContainer = try ModelContainer(
-                    for: schema,
-                    migrationPlan: migrationPlan,
-                    configurations: [ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)]
+                print("⚠️ Attempting to create fallback in-memory container...")
+                return try ModelContainer(
+                    for: Habit.self,
+                    configurations: ModelConfiguration(isStoredInMemoryOnly: true)
                 )
             } catch {
+                print("❌ FATAL: Fallback container also failed: \(error)")
                 fatalError("Could not initialize even fallback ModelContainer: \(error)")
             }
         }
-        
-        self.container = tempContainer!
-        self.migrationError = tempError
-    }
+    }()
+    
+    var migrationError: Error?
+}
+
+@main
+struct HabitTrackerApp : App {
+    
+    @State var viewModel = ViewModel()
+    @State private var subscriptionManager = SubscriptionManager()
+    @State private var cloudKitMonitor = CloudKitSyncMonitor()
+    @State private var containerSetup = AppContainerSetup()
     
     var body: some Scene {
         
         WindowGroup {
-            if let error = migrationError {
+            if let error = containerSetup.migrationError {
                 MigrationErrorView(error: error)
                     .environment(subscriptionManager)
-                    .environmentObject(viewModel)
+                    .environment(cloudKitMonitor)
+                    .environment(viewModel)
             } else {
                 ContentView()
                     .environment(subscriptionManager)
-                    .environmentObject(viewModel)
-                    .modelContainer(container)
+                    .environment(cloudKitMonitor)
+                    .environment(viewModel)
+                    .modelContainer(containerSetup.container)
                     .task {
                         // Check subscription status and load products on app launch
                         await subscriptionManager.checkSubscriptionStatus()
                         await subscriptionManager.loadProducts()
+                        
+                        // Start monitoring CloudKit sync
+                        cloudKitMonitor.monitorSync(container: containerSetup.container)
                     }
             }
         }

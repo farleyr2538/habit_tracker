@@ -62,7 +62,7 @@ class SubscriptionManager {
     
     // MARK: - Load Products
     
-    /// Load available subscription products from the App Store
+    // Load available subscription products from the App Store
     func loadProducts() async {
         isLoading = true
         errorMessage = nil

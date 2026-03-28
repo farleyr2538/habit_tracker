@@ -10,7 +10,7 @@ import SwiftData
 
 struct VerticalAllHabitsGrid: View {
     
-    @EnvironmentObject var viewModel : ViewModel
+    @Environment(ViewModel.self) var viewModel
     
     @Query var habits : [Habit]
     
@@ -161,7 +161,7 @@ struct VerticalAllHabitsGrid: View {
 #Preview {
     NavigationStack {
         VerticalAllHabitsGrid()
-            .environmentObject(ViewModel())
+            .environment(ViewModel())
             .modelContainer(for: Habit.self, inMemory: true) { result in
                 if case .success(let container) = result {
                     Habit.sampleData.forEach { habit in

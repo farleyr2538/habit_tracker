@@ -14,7 +14,7 @@ struct EditHabitSheet: View {
     @Environment(NavigationCoordinator.self) private var coordinator
     @Environment(SubscriptionManager.self) private var subscriptionManager
     
-    @EnvironmentObject var viewModel: ViewModel
+    @Environment(ViewModel.self) var viewModel
 
     @Bindable var habit : Habit
     
@@ -172,6 +172,6 @@ struct EditHabitSheet: View {
         EditHabitSheet(habit: Habit.sampleData.first!, hasJustDeleted: .constant(false))
     }
     .modelContainer(for: Habit.self)
-    .environmentObject(ViewModel())
+    .environment(ViewModel())
     .environment(NavigationCoordinator())
 }
