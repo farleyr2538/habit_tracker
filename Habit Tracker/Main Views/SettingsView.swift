@@ -57,7 +57,7 @@ struct SettingsView: View {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Upgrade to Pro")
                                     .font(.headline)
-                                Text("Unlock unlimited habits, widgets, and more")
+                                Text("Unlock unlimited habits")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
@@ -88,18 +88,38 @@ struct SettingsView: View {
                 
                 // iCloud Sync section
                 Section {
-                    Toggle(isOn: Binding(
-                        get: { !cloudSyncDisabled },
-                        set: { newValue in
-                            cloudSyncDisabled = !newValue
-                            UserDefaults.standard.set(cloudSyncDisabled, forKey: "cloudSyncDisabled")
-                            showRestartAlert = true
+                    if subscriptionManager.isPremium {
+                        Toggle(isOn: Binding(
+                            get: { !cloudSyncDisabled },
+                            set: { newValue in
+                                cloudSyncDisabled = !newValue
+                                UserDefaults.standard.set(cloudSyncDisabled, forKey: "cloudSyncDisabled")
+                                showRestartAlert = true
+                            }
+                        )) {
+                            Label("Enable iCloud Sync", systemImage: "icloud")
                         }
-                    )) {
-                        Label("Enable iCloud Sync", systemImage: "icloud")
+                    } else {
+                        // Non-premium users see a locked toggle
+                        HStack {
+                            Label("Enable iCloud Sync", systemImage: "icloud")
+                            Spacer()
+                            HStack(spacing: 4) {
+                                Image(systemName: "crown.fill")
+                                    .foregroundStyle(.yellow)
+                                    .font(.caption)
+                                Text("Pro")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            showPaywall = true
+                        }
                     }
                     
-                    if !cloudSyncDisabled {
+                    if !cloudSyncDisabled && subscriptionManager.isPremium {
                         HStack {
                             Text("Status")
                                 .foregroundStyle(.secondary)
@@ -146,7 +166,9 @@ struct SettingsView: View {
                 } header: {
                     Text("iCloud")
                 } footer: {
-                    if cloudSyncDisabled {
+                    if !subscriptionManager.isPremium {
+                        Text("iCloud Sync is a premium feature. Upgrade to Habit Tracker Pro to automatically sync your habits across all your devices.")
+                    } else if cloudSyncDisabled {
                         Text("iCloud Sync is disabled. Your habits are stored locally on this device only.")
                     } else {
                         Text("Your habits automatically sync across all your devices signed into the same iCloud account. Data is backed up and will restore when you reinstall the app.")
@@ -207,6 +229,10 @@ struct SettingsView: View {
             } message: {
                 Text("Please force quit and reopen the app for the iCloud sync setting to take effect.")
             }
+            .task {
+                // Check if sync should be automatically disabled when subscription expires
+                checkAndUpdateSyncStatus()
+            }
         }
         .sheet(isPresented: $showPaywall) {
             PaywallSheet_SubscriptionStoreView()
@@ -214,9 +240,13 @@ struct SettingsView: View {
         }
         .sheet(isPresented: $showMigrationDebug) {
             MigrationDebugView()
+                .environment(subscriptionManager)
+                .environment(cloudKitMonitor)
         }
         .sheet(isPresented: $showStorageLocationDebug) {
             StorageLocationDebugView()
+                .environment(subscriptionManager)
+                .environment(cloudKitMonitor)
         }
     }
     
@@ -256,6 +286,16 @@ struct SettingsView: View {
         
         debugMessage = "Migration flags have been reset. Restart the app to re-run migrations."
         showDebugAlert = true
+    }
+    
+    /// Check if iCloud sync should be automatically disabled due to subscription expiration
+    private func checkAndUpdateSyncStatus() {
+        // If user is not premium but sync is enabled, automatically disable it
+        if !subscriptionManager.isPremium && !cloudSyncDisabled {
+            cloudSyncDisabled = true
+            UserDefaults.standard.set(true, forKey: "cloudSyncDisabled")
+            print("⚠️ Automatically disabled iCloud sync - premium subscription required")
+        }
     }
 }
 

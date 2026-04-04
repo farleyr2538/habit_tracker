@@ -20,8 +20,6 @@ struct HabitView: View {
         
     var body: some View {
         
-        
-        
         VStack {
             
             ScrollView {
@@ -51,7 +49,6 @@ struct HabitView: View {
                     HorizontalGitHubView(habit: habit, width: .wide)
                     
                     MultiMonthView(habit: habit, color: .constant(nil))
-                        .frame(height: 290)
                     
                 }
                 

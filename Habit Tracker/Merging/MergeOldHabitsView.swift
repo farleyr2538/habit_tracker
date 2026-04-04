@@ -43,26 +43,9 @@ struct MergeOldHabitsView: View {
     var body: some View {
         NavigationStack {
             if mergeComplete {
-                VStack(spacing: 20) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 60))
-                        .foregroundStyle(.green)
-                    
-                    Text("Merge Complete!")
-                        .font(.title)
-                        .fontWeight(.bold)
-                    
-                    Text(mergeReport)
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(.secondary)
-                    
-                    Button("Done") {
-                        dismiss()
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .padding(.top)
+                MergeCompleteView(report: mergeReport) {
+                    dismiss()
                 }
-                .padding()
             } else {
                 List {
                     Section {

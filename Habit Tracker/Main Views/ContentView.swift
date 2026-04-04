@@ -51,6 +51,9 @@ struct ContentView: View {
                                 }
                                 .sheet(isPresented: $settingsSheetShowing) {
                                     SettingsView()
+                                        .environment(subscriptionManager)
+                                        .environment(cloudKitMonitor)
+                                        .environment(viewModel)
                                         .presentationBackground(.ultraThinMaterial)
                                 }
                         }
@@ -126,6 +129,9 @@ struct ContentView: View {
                 }
                 .sheet(isPresented: $settingsSheetShowing) {
                     SettingsView()
+                        .environment(subscriptionManager)
+                        .environment(cloudKitMonitor)
+                        .environment(viewModel)
                         .presentationBackground(.ultraThinMaterial)
                 }
             }

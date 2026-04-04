@@ -85,6 +85,24 @@ class SubscriptionManager {
     
     // MARK: - Check Subscription Status
     
+    /// Check for premium subscription status
+    /// Note: This is now async as StoreKit 2 requires async operations
+    static func hasPremiumSubscription() async -> Bool {
+        for await entitlement in Transaction.currentEntitlements {
+            switch entitlement {
+            case .verified(let transaction):
+                if transaction.productID == ProductID.premiumMonthly || 
+                   transaction.productID == ProductID.premiumAnnual {
+                    return true
+                }
+            case .unverified:
+                // Ignore unverified transactions
+                break
+            }
+        }
+        return false
+    }
+    
     func checkSubscriptionStatus() async {
         for await result in Transaction.currentEntitlements {
             switch result {
@@ -92,6 +110,8 @@ class SubscriptionManager {
                 if transaction.productID == ProductID.premiumMonthly || 
                    transaction.productID == ProductID.premiumAnnual {
                     isPremium = true
+                    // Cache the premium status for synchronous access during app initialization
+                    UserDefaults.standard.set(true, forKey: "cachedPremiumStatus")
                     return
                 }
             case .unverified:
@@ -100,6 +120,8 @@ class SubscriptionManager {
             }
         }
         isPremium = false
+        // Cache the non-premium status
+        UserDefaults.standard.set(false, forKey: "cachedPremiumStatus")
     }
     
     // MARK: - Purchase

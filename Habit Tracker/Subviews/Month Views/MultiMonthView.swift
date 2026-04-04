@@ -31,7 +31,7 @@ struct MultiMonthView: View {
         
         VStack(alignment: .center) {
                                                 
-            HStack {
+            HStack(alignment: .top) {
                 
                 /*
                 Chevron(direction: .left)
@@ -47,7 +47,7 @@ struct MultiMonthView: View {
                 
                 ScrollView(.horizontal) {
                     
-                    LazyHStack(spacing: 0) {
+                    LazyHStack(alignment: .top, spacing: 0) {
                         
                         ForEach(months, id:\.self) { month in
                             SingleMonthView(
@@ -64,8 +64,7 @@ struct MultiMonthView: View {
                 .scrollTargetBehavior(.paging)
                 .scrollIndicators(.hidden)
                 .scrollPosition(id: $today)
-                //.frame(maxHeight: 400)
-                
+                .frame(height: 300)
                 /*
                 Chevron(direction: .right)
                 
@@ -77,7 +76,9 @@ struct MultiMonthView: View {
                     }
                 */
             }
+            Spacer()
         }
+        
         .onAppear {
             
             today = calendar.startOfDay(for: Date())
@@ -88,6 +89,7 @@ struct MultiMonthView: View {
             }
         
         }
+        
     }
 }
 

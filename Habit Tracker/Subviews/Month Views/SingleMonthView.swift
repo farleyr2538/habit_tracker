@@ -35,6 +35,7 @@ struct SingleMonthView: View {
             
             Text(monthText + " " + String(year))
                 .font(.headline)
+                .padding(.vertical, 4)
             
             LazyVGrid(columns: gridColumns, spacing: 4) {
                 
@@ -76,6 +77,7 @@ struct SingleMonthView: View {
 }
 
 #Preview {
+    
     SingleMonthView(
         habit: Habit.sampleData.first!,
         selectedDate: Date(),

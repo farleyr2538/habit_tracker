@@ -262,22 +262,29 @@ final class AppContainerSetup {
         */
         
         // Configure CloudKit sync
+        // Note: We check a cached premium status here because lazy properties cannot be async.
+        // The actual subscription status will be verified in the app's .task modifier.
         let cloudSyncDisabled = UserDefaults.standard.bool(forKey: "cloudSyncDisabled")
+        let cachedPremiumStatus = UserDefaults.standard.bool(forKey: "cachedPremiumStatus")
         
         let modelConfiguration: ModelConfiguration
-        if cloudSyncDisabled {
+        if cloudSyncDisabled || !cachedPremiumStatus {
             modelConfiguration = ModelConfiguration(
                 schema: schema,
                 url: storeURL
             )
-            print("💾 Using local-only storage (user disabled CloudKit)")
+            if cloudSyncDisabled {
+                print("💾 Using local-only storage (user disabled CloudKit)")
+            } else if !cachedPremiumStatus {
+                print("💾 Using local-only storage (premium required for CloudKit)")
+            }
         } else {
             modelConfiguration = ModelConfiguration(
                 schema: schema,
                 url: storeURL,
                 cloudKitDatabase: .private("iCloud.com.rob.habittracker")
             )
-            print("☁️ CloudKit sync enabled (default)")
+            print("☁️ CloudKit sync enabled (premium active)")
         }
         
         do {

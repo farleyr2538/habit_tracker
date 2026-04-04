@@ -91,7 +91,7 @@ struct PaywallSheet: View {
                 // Features list
                 VStack(alignment: .leading, spacing: 20) {
                     FeatureRow(icon: "plus.square", text: "Unlimited Habits")
-                    FeatureRow(icon: "widget.small", text: "Widgets")
+                    /*FeatureRow(icon: "widget.small", text: "Widgets")*/
                     FeatureRow(icon: "paintpalette", text: "Custom Habit Colours")
                     FeatureRow(icon: "7.calendar", text: "7 Day Free Trial")
                 }

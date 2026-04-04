@@ -7,27 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		D4582B002F392B11007BECFE /* Habit Tracker WidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D4F184372F32651200D31E20 /* Habit Tracker WidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		D4F1843A2F32651200D31E20 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D4F184392F32651200D31E20 /* WidgetKit.framework */; };
-		D4F1843C2F32651200D31E20 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D4F1843B2F32651200D31E20 /* SwiftUI.framework */; };
 		D4FD46742F0016FE0015277A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D4FD46732F0016FE0015277A /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		D4582B012F392B11007BECFE /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D48425612DD4BB90009E257E /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = D4F184362F32651200D31E20;
-			remoteInfo = "Habit Tracker WidgetExtension";
-		};
-		D4582B042F392B24007BECFE /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D48425612DD4BB90009E257E /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = D4F184362F32651200D31E20;
-			remoteInfo = "Habit Tracker WidgetExtension";
-		};
 		D47693752F6AD7B3006C92F5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D48425612DD4BB90009E257E /* Project object */;
@@ -44,7 +27,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				D4582B002F392B11007BECFE /* Habit Tracker WidgetExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -54,30 +36,10 @@
 /* Begin PBXFileReference section */
 		D47693712F6AD7B3006C92F5 /* Habit Tracker Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Habit Tracker Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D48425692DD4BB90009E257E /* Habit Tracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Habit Tracker.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		D4F184372F32651200D31E20 /* Habit Tracker WidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Habit Tracker WidgetExtension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D4F184392F32651200D31E20 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		D4F1843B2F32651200D31E20 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
-		D4F184522F3266C800D31E20 /* Habit Tracker WidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Habit Tracker WidgetExtension.entitlements"; sourceTree = "<group>"; };
 		D4FD46732F0016FE0015277A /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		D4582AFD2F39225B007BECFE /* Exceptions for "Habit Tracker" folder in "Habit Tracker WidgetExtension" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Models.swift,
-				Utilities/ColorExtension.swift,
-			);
-			target = D4F184362F32651200D31E20 /* Habit Tracker WidgetExtension */;
-		};
-		D4F1844F2F32651300D31E20 /* Exceptions for "Habit Tracker Widget" folder in "Habit Tracker WidgetExtension" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = D4F184362F32651200D31E20 /* Habit Tracker WidgetExtension */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		D47693722F6AD7B3006C92F5 /* Habit Tracker Tests */ = {
@@ -87,18 +49,7 @@
 		};
 		D484256B2DD4BB90009E257E /* Habit Tracker */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				D4582AFD2F39225B007BECFE /* Exceptions for "Habit Tracker" folder in "Habit Tracker WidgetExtension" target */,
-			);
 			path = "Habit Tracker";
-			sourceTree = "<group>";
-		};
-		D4F1843D2F32651200D31E20 /* Habit Tracker Widget */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				D4F1844F2F32651300D31E20 /* Exceptions for "Habit Tracker Widget" folder in "Habit Tracker WidgetExtension" target */,
-			);
-			path = "Habit Tracker Widget";
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -118,25 +69,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		D4F184342F32651200D31E20 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				D4F1843C2F32651200D31E20 /* SwiftUI.framework in Frameworks */,
-				D4F1843A2F32651200D31E20 /* WidgetKit.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		D48425602DD4BB90009E257E = {
 			isa = PBXGroup;
 			children = (
-				D4F184522F3266C800D31E20 /* Habit Tracker WidgetExtension.entitlements */,
 				D4FD46732F0016FE0015277A /* LaunchScreen.storyboard */,
 				D484256B2DD4BB90009E257E /* Habit Tracker */,
-				D4F1843D2F32651200D31E20 /* Habit Tracker Widget */,
 				D47693722F6AD7B3006C92F5 /* Habit Tracker Tests */,
 				D4F184382F32651200D31E20 /* Frameworks */,
 				D484256A2DD4BB90009E257E /* Products */,
@@ -147,7 +87,6 @@
 			isa = PBXGroup;
 			children = (
 				D48425692DD4BB90009E257E /* Habit Tracker.app */,
-				D4F184372F32651200D31E20 /* Habit Tracker WidgetExtension.appex */,
 				D47693712F6AD7B3006C92F5 /* Habit Tracker Tests.xctest */,
 			);
 			name = Products;
@@ -200,8 +139,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				D4582B022F392B11007BECFE /* PBXTargetDependency */,
-				D4582B052F392B24007BECFE /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				D484256B2DD4BB90009E257E /* Habit Tracker */,
@@ -212,28 +149,6 @@
 			productName = Practice;
 			productReference = D48425692DD4BB90009E257E /* Habit Tracker.app */;
 			productType = "com.apple.product-type.application";
-		};
-		D4F184362F32651200D31E20 /* Habit Tracker WidgetExtension */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = D4F184502F32651300D31E20 /* Build configuration list for PBXNativeTarget "Habit Tracker WidgetExtension" */;
-			buildPhases = (
-				D4F184332F32651200D31E20 /* Sources */,
-				D4F184342F32651200D31E20 /* Frameworks */,
-				D4F184352F32651200D31E20 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				D4F1843D2F32651200D31E20 /* Habit Tracker Widget */,
-			);
-			name = "Habit Tracker WidgetExtension";
-			packageProductDependencies = (
-			);
-			productName = "Habit Tracker WidgetExtension";
-			productReference = D4F184372F32651200D31E20 /* Habit Tracker WidgetExtension.appex */;
-			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -252,9 +167,6 @@
 					D48425682DD4BB90009E257E = {
 						CreatedOnToolsVersion = 16.3;
 					};
-					D4F184362F32651200D31E20 = {
-						CreatedOnToolsVersion = 26.2;
-					};
 				};
 			};
 			buildConfigurationList = D48425642DD4BB90009E257E /* Build configuration list for PBXProject "Habit Tracker" */;
@@ -272,7 +184,6 @@
 			projectRoot = "";
 			targets = (
 				D48425682DD4BB90009E257E /* Habit Tracker */,
-				D4F184362F32651200D31E20 /* Habit Tracker WidgetExtension */,
 				D47693702F6AD7B3006C92F5 /* Habit Tracker Tests */,
 			);
 		};
@@ -294,13 +205,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		D4F184352F32651200D31E20 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -318,26 +222,9 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		D4F184332F32651200D31E20 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		D4582B022F392B11007BECFE /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = D4F184362F32651200D31E20 /* Habit Tracker WidgetExtension */;
-			targetProxy = D4582B012F392B11007BECFE /* PBXContainerItemProxy */;
-		};
-		D4582B052F392B24007BECFE /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = D4F184362F32651200D31E20 /* Habit Tracker WidgetExtension */;
-			targetProxy = D4582B042F392B24007BECFE /* PBXContainerItemProxy */;
-		};
 		D47693762F6AD7B3006C92F5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = D48425682DD4BB90009E257E /* Habit Tracker */;
@@ -520,7 +407,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Habit Tracker/Habit Tracker.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = W6PCDQ36JU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -537,7 +424,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.3;
+				MARKETING_VERSION = 1.1.5;
 				PRODUCT_BUNDLE_IDENTIFIER = Rob.HabitTracker;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -553,7 +440,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Habit Tracker/Habit Tracker.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = W6PCDQ36JU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -570,74 +457,10 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.3;
+				MARKETING_VERSION = 1.1.5;
 				PRODUCT_BUNDLE_IDENTIFIER = Rob.HabitTracker;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
-		D4F1844D2F32651300D31E20 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = "Habit Tracker WidgetExtension.entitlements";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = W6PCDQ36JU;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Habit Tracker Widget/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Habit Tracker Widget";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.1.3;
-				PRODUCT_BUNDLE_IDENTIFIER = "Rob.HabitTracker.Habit-Tracker-Widget";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		D4F1844E2F32651300D31E20 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = "Habit Tracker WidgetExtension.entitlements";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = W6PCDQ36JU;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Habit Tracker Widget/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Habit Tracker Widget";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.1.3;
-				PRODUCT_BUNDLE_IDENTIFIER = "Rob.HabitTracker.Habit-Tracker-Widget";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -669,15 +492,6 @@
 			buildConfigurations = (
 				D48425752DD4BB92009E257E /* Debug */,
 				D48425762DD4BB92009E257E /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		D4F184502F32651300D31E20 /* Build configuration list for PBXNativeTarget "Habit Tracker WidgetExtension" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				D4F1844D2F32651300D31E20 /* Debug */,
-				D4F1844E2F32651300D31E20 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

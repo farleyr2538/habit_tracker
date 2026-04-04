@@ -12,6 +12,7 @@ import StoreKit
 struct PaywallSheet_SubscriptionStoreView: View {
     
     @Environment(\.dismiss) var dismiss
+    @Environment(SubscriptionManager.self) private var subscriptionManager
     
     var body: some View {
         SubscriptionStoreView(groupID: "21977620") {
@@ -28,14 +29,16 @@ struct PaywallSheet_SubscriptionStoreView: View {
                 
                 VStack(alignment: .leading, spacing: 16) {
                     FeatureRow(icon: "plus.square", text: "Unlimited Habits")
-                    FeatureRow(icon: "widget.small", text: "Widgets")
+                    /*
+                     FeatureRow(icon: "widget.small", text: "Widgets")
+                     */
                     FeatureRow(icon: "paintpalette", text: "Custom Habit Colours")
                     FeatureRow(icon: "7.calendar", text: "7 Day Free Trial")
                 }
                 .padding(.horizontal, 20)
             }
-            .padding(.top, 40)
-            .padding(.bottom, 20)
+            .padding(.top, 50)
+            //.padding(.bottom, 20)
         }
         .backgroundStyle(.clear)
         .subscriptionStoreButtonLabel(.multiline)
@@ -45,7 +48,12 @@ struct PaywallSheet_SubscriptionStoreView: View {
         .subscriptionStorePolicyDestination(url: URL(string: "https://drive.google.com/uc?export=view&id=1oYbQ7QuLGvCxkhuDWGRwyGbVYbmVoGLr")!, for: .privacyPolicy)
         .onInAppPurchaseCompletion { product, result in
             if case .success(.success(_)) = result {
-                dismiss()
+                // Update subscription status immediately
+                Task {
+                    await subscriptionManager.checkSubscriptionStatus()
+                    // Dismiss after status is updated
+                    dismiss()
+                }
             }
         }
         .interactiveDismissDisabled()
@@ -54,5 +62,6 @@ struct PaywallSheet_SubscriptionStoreView: View {
 
 #Preview {
     PaywallSheet_SubscriptionStoreView()
+        .environment(SubscriptionManager())
         .modelContainer(for: Habit.self, inMemory: true)
 }

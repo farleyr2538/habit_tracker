@@ -53,32 +53,27 @@ struct CreateHabitSheet: View {
                             }
                         }
                 }
-                
-                // color picker - Premium Only
-                //if subscriptionManager.isPremium {
+                    
+                if subscriptionManager.isPremium {
+                    
                     HStack {
+                        
                         Spacer()
                         
-                        CustomColorPicker(selectedColor: Binding(
-                            get: { color ?? .green },
-                            set: { color = $0 }
+                        CustomColorPicker(
+                            selectedColor: Binding(
+                                get: { color ?? .green },
+                                set: { color = $0 }
                             )
                         )
                         
                         Spacer()
                     }
                     .disabled(!subscriptionManager.isPremium)
-                    .opacity(!subscriptionManager.isPremium ? 0.2 : 1.0)
-                //}
-                
-                VStack {
-                    Text("Select any recent dates you have completed this habit")
-                        .foregroundStyle(.gray)
-                    
-                    MultiMonthView(habit: newHabit, color: $color)
-                        .frame(height: 300)
+                    .opacity(!subscriptionManager.isPremium ? 0.1 : 1.0)
                 }
-                .padding(.vertical)
+                   
+                MultiMonthView(habit: newHabit, color: $color)
                                     
             }
 
