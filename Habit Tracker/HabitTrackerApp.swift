@@ -205,7 +205,17 @@ struct AppGroupMigration {
 @MainActor
 final class AppContainerSetup {
     
-    lazy var container: ModelContainer = {
+    private var _container: ModelContainer?
+    
+    var container: ModelContainer {
+        if let _container = _container {
+            return _container
+        }
+        _container = createContainer()
+        return _container!
+    }
+    
+    private func createContainer() -> ModelContainer {
         let schema = Schema(versionedSchema: SchemaV3.self)
         let appGroupID = "group.com.rob.habittracker"
         
@@ -328,7 +338,7 @@ final class AppContainerSetup {
                 fatalError("Could not initialize even fallback ModelContainer: \(error)")
             }
         }
-    }()
+    }
     
     var migrationError: Error?
 }
@@ -340,11 +350,37 @@ struct HabitTrackerApp : App {
     @State private var subscriptionManager = SubscriptionManager()
     @State private var cloudKitMonitor = CloudKitSyncMonitor()
     @State private var containerSetup = AppContainerSetup()
+    @State private var isInitialized = false
     
     var body: some Scene {
         
         WindowGroup {
-            if let error = containerSetup.migrationError {
+            if !isInitialized {
+                // Show loading screen while we check subscription status
+                ProgressView("Loading...")
+                    .task {
+                        // CRITICAL: Check subscription BEFORE accessing container
+                        // This ensures expired subscriptions don't sync with iCloud
+                        // AND ensures fresh installs enable CloudKit if user is premium
+                        print("🔍 Checking subscription status before container creation...")
+                        let isPremium = await SubscriptionManager.hasPremiumSubscription()
+                        UserDefaults.standard.set(isPremium, forKey: "cachedPremiumStatus")
+                        print("✅ Premium status cached: \(isPremium)")
+                        
+                        // Auto-disable iCloud sync if premium expired
+                        let cloudSyncDisabled = UserDefaults.standard.bool(forKey: "cloudSyncDisabled")
+                        if !isPremium && !cloudSyncDisabled {
+                            UserDefaults.standard.set(true, forKey: "cloudSyncDisabled")
+                            print("⚠️ Premium expired - iCloud sync disabled")
+                        }
+                        
+                        if isPremium && !cloudSyncDisabled {
+                            print("☁️ Premium active - iCloud sync will be enabled for data restoration")
+                        }
+                        
+                        isInitialized = true
+                    }
+            } else if let error = containerSetup.migrationError {
                 MigrationErrorView(error: error)
                     .environment(subscriptionManager)
                     .environment(cloudKitMonitor)

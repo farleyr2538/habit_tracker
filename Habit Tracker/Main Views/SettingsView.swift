@@ -13,6 +13,7 @@ struct SettingsView: View {
     
     @Environment(SubscriptionManager.self) private var subscriptionManager
     @Environment(CloudKitSyncMonitor.self) private var cloudKitMonitor
+    @Environment(ViewModel.self) private var viewModel
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     
@@ -23,56 +24,13 @@ struct SettingsView: View {
     @State private var showStorageLocationDebug = false
     @State private var cloudSyncDisabled = UserDefaults.standard.bool(forKey: "cloudSyncDisabled")
     @State private var showRestartAlert = false
+    @State private var showMergeHabits = false
     
     var body: some View {
+        
         NavigationStack {
+            
             List {
-                // Subscription section
-                Section {
-                    if subscriptionManager.isPremium {
-                        HStack {
-                            Image(systemName: "crown.fill")
-                                .foregroundStyle(.yellow)
-                            Text("Habit Tracker Pro")
-                                .font(.headline)
-                            Spacer()
-                            Text("Active")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                        
-                        Button("Manage Subscription") {
-                            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-                                Task {
-                                    do {
-                                        try await AppStore.showManageSubscriptions(in: windowScene)
-                                    } catch {
-                                        print("Failed to show manage subscriptions: \(error)")
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("Upgrade to Pro")
-                                    .font(.headline)
-                                Text("Unlock unlimited habits")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                            Spacer()
-                            Image(systemName: "crown.fill")
-                                .foregroundStyle(.yellow)
-                        }
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            showPaywall = true
-                        }
-                    }
-                } header: {
-                    Text("Subscription")
-                }
                 
                 // About section
                 Section {
@@ -88,33 +46,27 @@ struct SettingsView: View {
                 
                 // iCloud Sync section
                 Section {
-                    if subscriptionManager.isPremium {
-                        Toggle(isOn: Binding(
-                            get: { !cloudSyncDisabled },
-                            set: { newValue in
-                                cloudSyncDisabled = !newValue
-                                UserDefaults.standard.set(cloudSyncDisabled, forKey: "cloudSyncDisabled")
-                                showRestartAlert = true
-                            }
-                        )) {
-                            Label("Enable iCloud Sync", systemImage: "icloud")
-                        }
-                    } else {
-                        // Non-premium users see a locked toggle
-                        HStack {
-                            Label("Enable iCloud Sync", systemImage: "icloud")
-                            Spacer()
-                            HStack(spacing: 4) {
-                                Image(systemName: "crown.fill")
-                                    .foregroundStyle(.yellow)
-                                    .font(.caption)
-                                Text("Pro")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
+                    Toggle(isOn: Binding(
+                        get: { subscriptionManager.isPremium && !cloudSyncDisabled },
+                        set: { newValue in
+                            if subscriptionManager.isPremium {
+                                let willEnableSync = newValue
+                                let currentSyncState = !cloudSyncDisabled
+                                
+                                // Only allow change if it's different from current state
+                                if willEnableSync != currentSyncState {
+                                    cloudSyncDisabled = !newValue
+                                    UserDefaults.standard.set(cloudSyncDisabled, forKey: "cloudSyncDisabled")
+                                    showRestartAlert = true
+                                }
                             }
                         }
-                        .contentShape(Rectangle())
-                        .onTapGesture {
+                    )) {
+                        Label("iCloud Sync", systemImage: "icloud")
+                    }
+                    .disabled(!subscriptionManager.isPremium)
+                    .onTapGesture {
+                        if !subscriptionManager.isPremium {
                             showPaywall = true
                         }
                     }
@@ -164,17 +116,77 @@ struct SettingsView: View {
                         }
                     }
                 } header: {
-                    Text("iCloud")
+                    Text("Settings")
                 } footer: {
-                    if !subscriptionManager.isPremium {
+                    /* if !subscriptionManager.isPremium {
                         Text("iCloud Sync is a premium feature. Upgrade to Habit Tracker Pro to automatically sync your habits across all your devices.")
-                    } else if cloudSyncDisabled {
+                    } else */ if cloudSyncDisabled {
                         Text("iCloud Sync is disabled. Your habits are stored locally on this device only.")
                     } else {
                         Text("Your habits automatically sync across all your devices signed into the same iCloud account. Data is backed up and will restore when you reinstall the app.")
                     }
                 }
                 
+                Section {
+                    Button {
+                        showMergeHabits = true
+                    } label: {
+                        Label("Merge Habits", systemImage: "arrow.triangle.merge")
+                    }
+                } header: {
+                    Text("Merge")
+                } footer: {
+                    Text("Combine multiple habits into one. All completion dates will be preserved.")
+                }
+                
+                // Subscription section
+                Section {
+                    if subscriptionManager.isPremium {
+                        HStack {
+                            Image(systemName: "crown.fill")
+                                .foregroundStyle(.yellow)
+                            Text("Habit Tracker Pro")
+                                .font(.headline)
+                            Spacer()
+                            Text("Active")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        
+                        Button("Manage Subscription") {
+                            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+                                Task {
+                                    do {
+                                        try await AppStore.showManageSubscriptions(in: windowScene)
+                                    } catch {
+                                        print("Failed to show manage subscriptions: \(error)")
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Upgrade to Pro")
+                                    .font(.headline)
+                                Text("Unlock unlimited habits and much more")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            Image(systemName: "crown.fill")
+                                .foregroundStyle(.yellow)
+                        }
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            showPaywall = true
+                        }
+                    }
+                } header: {
+                    Text("Subscription")
+                }
+                
+                #if DEBUG
                 // Storage location debugging (available in all builds)
                 Section {
                     Button {
@@ -182,14 +194,20 @@ struct SettingsView: View {
                     } label: {
                         Label("Check Storage Locations", systemImage: "folder.badge.questionmark")
                     }
+                    
+                    Button {
+                        printCloudKitSyncDebug()
+                    } label: {
+                        Label("Print CloudKit Sync Debug", systemImage: "icloud.and.arrow.down")
+                    }
                 } header: {
                     Text("Troubleshooting")
                 } footer: {
-                    Text("If habits appear to be missing after an update, use this tool to check all possible storage locations where your data might exist.")
+                    Text("Use these tools to diagnose sync issues. The CloudKit debug will print a detailed report to the Xcode console showing all habits and their sync status.")
                 }
                 
                 // Debug section (for troubleshooting migration issues)
-                #if DEBUG
+                
                 Section {
                     Button("Open Migration Debug Tools") {
                         showMigrationDebug = true
@@ -224,10 +242,13 @@ struct SettingsView: View {
             } message: {
                 Text(debugMessage)
             }
-            .alert("Restart Required", isPresented: $showRestartAlert) {
-                Button("OK") { }
+            .alert("App Restart Required", isPresented: $showRestartAlert) {
+                Button("I Understand", role: .cancel) {
+                    // Dismiss the entire settings view to force user to restart
+                    dismiss()
+                }
             } message: {
-                Text("Please force quit and reopen the app for the iCloud sync setting to take effect.")
+                Text("To apply this change, you MUST force quit the app and reopen it:\n\n1. Swipe up from bottom of screen (or double-click home button)\n2. Swipe up on Habit Tracker to close it\n3. Tap the app icon to reopen\n\nThe setting will not take effect until you restart.")
             }
             .task {
                 // Check if sync should be automatically disabled when subscription expires
@@ -236,17 +257,24 @@ struct SettingsView: View {
         }
         .sheet(isPresented: $showPaywall) {
             PaywallSheet_SubscriptionStoreView()
+                .environment(subscriptionManager)
                 .presentationBackground(.ultraThinMaterial)
         }
         .sheet(isPresented: $showMigrationDebug) {
             MigrationDebugView()
                 .environment(subscriptionManager)
                 .environment(cloudKitMonitor)
+                .environment(viewModel)
         }
         .sheet(isPresented: $showStorageLocationDebug) {
             StorageLocationDebugView()
                 .environment(subscriptionManager)
                 .environment(cloudKitMonitor)
+                .environment(viewModel)
+        }
+        .sheet(isPresented: $showMergeHabits) {
+            MergeHabitsView()
+                .environment(viewModel)
         }
     }
     
@@ -280,6 +308,30 @@ struct SettingsView: View {
         }
     }
     
+    private func printCloudKitSyncDebug() {
+        do {
+            let descriptor = FetchDescriptor<Habit>()
+            let habits = try modelContext.fetch(descriptor)
+            
+            // Use the ViewModel from the environment (not creating a new instance)
+            // Add safety check in case environment isn't properly set up
+            guard let vm = try? viewModel as? ViewModel else {
+                debugMessage = "⚠️ ViewModel not available in environment. This shouldn't happen."
+                showDebugAlert = true
+                return
+            }
+            
+            vm.debugCloudKitSync(habits: habits, context: modelContext)
+            
+            debugMessage = "✅ CloudKit sync debug report printed to console. Check Xcode's console to view the detailed report."
+            showDebugAlert = true
+            
+        } catch {
+            debugMessage = "❌ Failed to fetch habits: \(error.localizedDescription)"
+            showDebugAlert = true
+        }
+    }
+    
     private func resetMigrationFlags() {
         UserDefaults.standard.removeObject(forKey: AppGroupMigration.migrationCompleteKey)
         UserDefaults.standard.removeObject(forKey: AppGroupMigration.schemaMigrationVerifiedKey)
@@ -303,5 +355,6 @@ struct SettingsView: View {
     SettingsView()
         .environment(SubscriptionManager())
         .environment(CloudKitSyncMonitor())
+        .environment(ViewModel())
         .modelContainer(for: Habit.self, inMemory: true)
 }

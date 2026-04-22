@@ -211,12 +211,30 @@ struct StorageLocationDebugView: View {
         
         // Define all possible storage locations
         let locations: [(name: String, url: URL?)] = [
+            // App Support directory locations
             ("App Support / default.store", URL.applicationSupportDirectory.appending(path: "default.store")),
             ("App Support / HabitTracker.sqlite", URL.applicationSupportDirectory.appending(path: "HabitTracker.sqlite")),
             ("App Support / Habit_Tracker.sqlite", URL.applicationSupportDirectory.appending(path: "Habit_Tracker.sqlite")),
+            
+            // App Group locations
             ("App Group / default.store", FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID)?.appendingPathComponent("default.store")),
             ("App Group / Habit_Tracker.sqlite", FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID)?.appendingPathComponent("Habit_Tracker.sqlite")),
-            ("App Group / HabitTracker.sqlite (CURRENT)", FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID)?.appendingPathComponent("HabitTracker.sqlite"))
+            ("App Group / HabitTracker.sqlite (CURRENT)", FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID)?.appendingPathComponent("HabitTracker.sqlite")),
+            
+            // Documents directory (less common but possible)
+            ("Documents / default.store", URL.documentsDirectory.appending(path: "default.store")),
+            ("Documents / HabitTracker.sqlite", URL.documentsDirectory.appending(path: "HabitTracker.sqlite")),
+            
+            // Library directory (alternative to App Support)
+            ("Library / default.store", FileManager.default.urls(for: .libraryDirectory, in: .userDomainMask).first?.appending(path: "default.store")),
+            ("Library / HabitTracker.sqlite", FileManager.default.urls(for: .libraryDirectory, in: .userDomainMask).first?.appending(path: "HabitTracker.sqlite")),
+            
+            // CloudKit cache location (if user had iCloud enabled previously)
+            ("Library / CloudKit / default.store", FileManager.default.urls(for: .libraryDirectory, in: .userDomainMask).first?.appending(path: "CloudKit/default.store")),
+            
+            // Caches directory (unlikely but possible during development)
+            ("Caches / default.store", FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first?.appending(path: "default.store")),
+            ("Caches / HabitTracker.sqlite", FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first?.appending(path: "HabitTracker.sqlite"))
         ]
         
         for (name, url) in locations {

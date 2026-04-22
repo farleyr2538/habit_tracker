@@ -10,8 +10,6 @@ import SwiftData
 
 struct ContentView: View {
     
-    // Using @Environment instead of @EnvironmentObject for consistency
-    // This prevents crashes when environment isn't properly set up
     @Environment(ViewModel.self) private var viewModel
     @Environment(SubscriptionManager.self) private var subscriptionManager
     @Environment(CloudKitSyncMonitor.self) private var cloudKitMonitor
@@ -31,50 +29,26 @@ struct ContentView: View {
         Group {
             if !habits.isEmpty {
                 
-                // TabView {
+                TabView {
                     
-                    // Tab("Habits", systemImage: "list.bullet") {
+                    Tab("Habits", systemImage: "list.bullet") {
                         NavigationStack(path: $coordinator.path) {
-                            HabitListView()
+                            HabitListView(settingsSheetShowing: settingsSheetShowing)
                                 .navigationTitle("Habits")
                                 .navigationDestination(for: Habit.self) { habit in
                                     HabitView(habit: habit)
                                 }
-                                .toolbar {
-                                    ToolbarItem(placement: .primaryAction) {
-                                        Button {
-                                            settingsSheetShowing.toggle()
-                                        } label: {
-                                            Image(systemName: "gearshape")
-                                        }
-                                    }
-                                }
-                                .sheet(isPresented: $settingsSheetShowing) {
-                                    SettingsView()
-                                        .environment(subscriptionManager)
-                                        .environment(cloudKitMonitor)
-                                        .environment(viewModel)
-                                        .presentationBackground(.ultraThinMaterial)
-                                }
                         }
                         .environment(coordinator)
-                    // }
+                    }
                     
-                /*
-                    // Tab("Overview", systemImage: "chart.bar") {
+                
+                    Tab("Overview", systemImage: "chart.bar") {
                         NavigationStack {
-                            /*
-                            List {
-                                NavigationLink(destination: HabitCompletionBarChart()) {
-                                    Text("Habit Completion Bar Chart")
-                                }
-                                NavigationLink(destination: VerticalAllHabitsGrid()) {
-                                    Text("Vertical Habits view")
-                                }
-
-                            }
-                            */
+                            
                             VerticalAllHabitsGrid()
+                                .navigationTitle("Overview")
+                            
                         }
                         .background(Color.background, ignoresSafeAreaEdges: .all)
                         .environment(coordinator)
@@ -82,10 +56,9 @@ struct ContentView: View {
                             SettingsView()
                                 .presentationBackground(.ultraThinMaterial)
                         }
-                    //}
+                    }
                     
-                // }
-                */
+                }
                 
             } else {
                 

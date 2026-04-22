@@ -51,32 +51,30 @@ struct VerticalAllHabitsGrid: View {
                 LazyVGrid(columns: gridCols) {
                     ForEach(selectedWeekdaysArray, id: \.offset) { index, day in
                         Text(day)
+                            .font(.system(size: textSize))
+                            .frame(width: isZoomed ? largeBoxDimensions : smallBoxDimensions)
                     }
-
                 }
-                .font(.system(size: textSize))
-                
+                .padding(.top)
+                .animation(.smooth(duration: 0.4), value: isZoomed)
                 
                 ScrollView([.vertical]) {
                     
-                    LazyVGrid(columns: gridCols) {
+                    LazyVGrid(columns: gridCols, spacing: 5.0) {
                         
                         ForEach(0..<opacities.count, id: \.self) { dayNumber in
                             
-                            ZStack {
-                                
-                                RoundedRectangle(cornerRadius: 2.0)
-                                    .foregroundStyle(opacities[dayNumber] == 0 ? Color.gray.opacity(0.1) : Color.green.opacity(opacities[dayNumber]))
-
-                            }
-                            .frame(
-                                width: isZoomed ? largeBoxDimensions : smallBoxDimensions,
-                                height: isZoomed ? largeBoxDimensions : smallBoxDimensions
-                            )
-                            .padding(.vertical, -2)
+                            RoundedRectangle(cornerRadius: isZoomed ? 4.0 : 2.5)
+                                .foregroundStyle(opacities[dayNumber] == 0 ? Color.gray.opacity(0.1) : Color.green.opacity(opacities[dayNumber]))
+                                .frame(
+                                    width: isZoomed ? largeBoxDimensions : smallBoxDimensions,
+                                    height: isZoomed ? largeBoxDimensions : smallBoxDimensions
+                                )
+                                //.padding(.vertical, -1)
                         }
                         
                     }
+                    .id(isZoomed) // Add this to force view recreation
                     .scrollTargetLayout()
                 }
                 .scrollIndicators(.hidden)
@@ -86,6 +84,8 @@ struct VerticalAllHabitsGrid: View {
                 .padding(.bottom, 20)
                 
             }
+            .padding(.horizontal, isZoomed ? 20 : 120)
+            .animation(.smooth(duration: 0.4), value: isZoomed)
             
             /*
             // add day number picker, eg. last week, last month, last 3, 6, 12, 24 months
@@ -139,7 +139,9 @@ struct VerticalAllHabitsGrid: View {
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Button {
-                    isZoomed.toggle()
+                    withAnimation(.smooth(duration: 0.4)) {
+                        isZoomed.toggle()
+                    }
                 } label: {
                     Image(systemName: isZoomed ? "minus.magnifyingglass" : "plus.magnifyingglass")
                 }
@@ -164,7 +166,44 @@ struct VerticalAllHabitsGrid: View {
             .environment(ViewModel())
             .modelContainer(for: Habit.self, inMemory: true) { result in
                 if case .success(let container) = result {
-                    Habit.sampleData.forEach { habit in
+                    let calendar = Calendar.current
+                    let today = calendar.startOfDay(for: Date())
+                    
+                    // Create habits with recent completions
+                    var runningDates: [Date] = []
+                    var yogaDates: [Date] = []
+                    var readingDates: [Date] = []
+                    
+                    // Running: completed most days in the last 30 days
+                    for daysAgo in [0, 1, 2, 3, 5, 6, 8, 10, 11, 12, 14, 15, 17, 18, 20, 22, 24, 25, 27, 29] {
+                        if let date = calendar.date(byAdding: .day, value: -daysAgo, to: today) {
+                            runningDates.append(date)
+                        }
+                    }
+                    
+                    // Yoga: completed less frequently
+                    for daysAgo in [0, 2, 4, 7, 9, 14, 16, 21, 28] {
+                        if let date = calendar.date(byAdding: .day, value: -daysAgo, to: today) {
+                            yogaDates.append(date)
+                        }
+                    }
+                    
+                    // Reading: sporadic pattern
+                    for daysAgo in [0, 1, 3, 4, 8, 10, 15, 18, 22, 25, 26, 30, 32, 35, 40, 45] {
+                        if let date = calendar.date(byAdding: .day, value: -daysAgo, to: today) {
+                            readingDates.append(date)
+                        }
+                    }
+                    
+                    let startDate = calendar.date(byAdding: .day, value: -60, to: today)!
+                    
+                    let habits = [
+                        Habit(name: "Running", dates: runningDates, colorHash: "#00FF00", dateCreated: startDate, startFrom: startDate, order: 0),
+                        Habit(name: "Yoga", dates: yogaDates, colorHash: "#FF6B6B", dateCreated: startDate, startFrom: startDate, order: 1),
+                        Habit(name: "Reading", dates: readingDates, colorHash: "#4ECDC4", dateCreated: startDate, startFrom: startDate, order: 2)
+                    ]
+                    
+                    habits.forEach { habit in
                         container.mainContext.insert(habit)
                     }
                 }

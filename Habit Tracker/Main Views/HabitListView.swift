@@ -10,15 +10,22 @@ import SwiftData
 
 struct HabitListView: View {
     
+    @Environment(ViewModel.self) private var viewModel
     @Environment(NavigationCoordinator.self) private var coordinator
     @Environment(SubscriptionManager.self) private var subscriptionManager
+    @Environment(CloudKitSyncMonitor.self) private var cloudKitMonitor
     
     // SwiftData
     @Query(sort: [SortDescriptor(\Habit.order, order: .forward)]) private var habits : [Habit]
     @Environment(\.modelContext) private var context
     
+    @State var settingsSheetShowing : Bool = false
     @State var newHabitSheetShowing : Bool = false
     @State var paywallSheetShowing : Bool = false
+    
+    @State private var editMode : Bool = false
+    @State private var contentOffset: CGFloat = 0
+    @Environment(\.editMode) private var environmentEditMode
     
     private func moveHabit(from source: IndexSet, to destination: Int) {
         var reorderedHabits = habits
@@ -35,21 +42,74 @@ struct HabitListView: View {
             List {
                 
                 ForEach(habits) { habit in
-                    HabitCard(habit: habit)
-                        .listRowInsets(EdgeInsets(top: 7.5, leading: 15, bottom: 7.5, trailing: 15))
+                    HStack {
+                        Spacer()
+                        HabitCard(habit: habit)
+                        Spacer()
+                    }
+                        .offset(x: contentOffset)
+                        .listRowInsets(EdgeInsets(
+                            top: 7.5,
+                            leading: 15,
+                            bottom: 7.5,
+                            trailing: 15
+                        ))
                         .listRowSeparator(.hidden)
                         .listRowBackground(Color.clear)
                         .onTapGesture {
                             coordinator.path.append(habit)
                         }
                 }
-                .onMove(perform: moveHabit)
+                .onMove(perform: editMode == true ? moveHabit : nil)
             }
+            
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
-            .frame(maxWidth: .infinity)
+            
             .background(Color.background, ignoresSafeAreaEdges: .all)
-            //.environment(\.editMode, .constant(.active)) // Always in edit mode for drag
+        
+            .toolbar {
+                ToolbarItemGroup {
+                    
+                    if !editMode {
+                        Button {
+                            editMode.toggle()
+                        } label: {
+                            
+                            Image(systemName: "slider.horizontal.3")
+                            
+                        }
+                        
+                        Button {
+                            settingsSheetShowing.toggle()
+                        } label: {
+                            Image(systemName: "gearshape")
+                        }
+                    } else {
+                        if #available(iOS 26.0, *) {
+                            Button(role: .confirm) {
+                                editMode = false
+                            } label: {
+                                Image(systemName: "checkmark")
+                            }
+                        } else {
+                            // Fallback on earlier versions
+                            Button {
+                                editMode = false
+                            } label: {
+                                Image(systemName: "checkmark")
+                            }
+                        }
+                    }
+                }
+            }
+            
+            .onChange(of: editMode) { oldValue, newValue in
+                withAnimation(.easeInOut(duration: 0.25)) {
+                    contentOffset = newValue == true ? -20 : 0
+                    environmentEditMode?.wrappedValue = newValue ? .active : .inactive
+                }
+            }
             
             // add habit button
             .safeAreaInset(edge: .bottom, alignment: .trailing) {
@@ -86,7 +146,14 @@ struct HabitListView: View {
                 PaywallSheet_SubscriptionStoreView()
             }
         
-        
+            // settings sheet
+            .sheet(isPresented: $settingsSheetShowing) {
+                SettingsView()
+                    .environment(subscriptionManager)
+                    .environment(cloudKitMonitor)
+                    .environment(viewModel)
+                    .presentationBackground(.ultraThinMaterial)
+            }
     }
 }
 
@@ -104,4 +171,5 @@ struct HabitListView: View {
     .environment(ViewModel())
     .environment(NavigationCoordinator())
     .environment(SubscriptionManager())
+    .environment(CloudKitSyncMonitor())
 }

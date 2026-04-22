@@ -8,6 +8,7 @@
 import SwiftUI
 import StoreKit
 
+/*
 struct PaywallSheet: View {
     
     @Environment(SubscriptionManager.self) var subscriptionManager
@@ -260,3 +261,4 @@ struct PaywallSheet: View {
         .environment(SubscriptionManager())
         .modelContainer(for: Habit.self, inMemory: true)
 }
+*/

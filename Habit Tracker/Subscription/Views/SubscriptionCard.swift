@@ -14,7 +14,7 @@ struct SubscriptionCard: View {
         case yearly
     }
     
-    let plan: PaywallSheet.SubscriptionPlan
+    let plan: SubscriptionPlan
     let isSelected: Bool
     let title: String
     let price: String
